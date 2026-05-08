@@ -18,8 +18,7 @@ jobs:
           git config user.email "actions@github.com"
 
       - name: Push to RepoMind
-        env:
-          REPO_SYNC_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
         run: |
-          git remote add repomind https://ghp_${REPO_SYNC_TOKEN}@github.com/yooniqx/RepoMind.git
+          git remote add repomind https://x-access-token:${{ secrets.REPO_SYNC_TOKEN }}@github.com/yooniqx/RepoMind.git
           git push repomind main --force
+
