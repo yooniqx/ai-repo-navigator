@@ -124,6 +124,57 @@ function Index() {
             ))}
           </div>
         </section>
+
+        {/* Why RepoMind? */}
+        <section id="why" className="mx-auto max-w-6xl px-6 py-20">
+          <div className="text-center max-w-2xl mx-auto mb-12 animate-fade-up">
+            <p className="text-xs font-mono text-primary mb-3">WHY REPOMIND?</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+              Built for Developers, Not <span className="gradient-text">Generic AI Chats</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              RepoMind specializes in understanding GitHub repositories and helping developers
+              navigate unfamiliar codebases faster.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              { g: "Requires manually pasting context every time", r: "Automatically analyzes the entire repository structure" },
+              { g: "Provides broad, generic answers", r: "Gives developer-focused architecture insights" },
+              { g: "Struggles with onboarding new contributors", r: "Generates beginner-friendly guidance and tours" },
+              { g: "Not repository-aware out of the box", r: "Optimized specifically for GitHub repositories" },
+              { g: "Responses can feel unstructured", r: "Organizes summaries into clear developer workflows" },
+            ].map((row, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-up"
+                style={{ animationDelay: `${i * 70}ms` }}
+              >
+                <div className="glass rounded-2xl p-5 opacity-70 hover:opacity-90 transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="h-6 w-6 rounded-md flex items-center justify-center bg-muted text-muted-foreground text-xs">✕</span>
+                    <span className="text-xs font-mono uppercase tracking-wide text-muted-foreground">Generic AI</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground/40">{row.g}</p>
+                </div>
+
+                <div className="glass rounded-2xl p-5 border-primary/30 hover:border-primary/60 hover:-translate-y-0.5 hover:shadow-glow transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className="h-6 w-6 rounded-md flex items-center justify-center text-primary-foreground text-xs font-semibold"
+                      style={{ background: "var(--gradient-primary)" }}
+                    >
+                      ✓
+                    </span>
+                    <span className="text-xs font-mono uppercase tracking-wide text-primary">RepoMind</span>
+                  </div>
+                  <p className="text-sm text-foreground">{row.r}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />
