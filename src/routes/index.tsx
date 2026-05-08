@@ -175,6 +175,75 @@ function Index() {
             ))}
           </div>
         </section>
+
+        {/* How RepoMind Works */}
+        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20 scroll-mt-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 animate-fade-up">
+            <p className="text-xs font-mono text-primary mb-3">HOW IT WORKS</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+              How <span className="gradient-text">RepoMind</span> Works
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              From a single GitHub URL to a complete developer-ready breakdown — in seconds.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { t: "Paste GitHub URL", d: "Drop in any public GitHub repository link and RepoMind takes it from there.", icon: "🔗" },
+              { t: "Analyze Structure", d: "We pull metadata, README, languages, and the file tree to map the codebase.", icon: "🔍" },
+              { t: "Generate Insights", d: "Architecture, tech stack, and important files are organized into clean cards.", icon: "🧠" },
+              { t: "Onboard Faster", d: "Beginner guides and a chat assistant help developers get productive immediately.", icon: "🚀" },
+            ].map((s, i) => (
+              <div
+                key={s.t}
+                className="glass rounded-2xl p-6 animate-fade-up hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-glow transition-all duration-300 relative"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <span className="absolute top-4 right-4 text-[10px] font-mono text-muted-foreground">
+                  STEP {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="text-3xl mb-4">{s.icon}</div>
+                <h3 className="font-semibold mb-1.5">{s.t}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Developer Features */}
+        <section id="developer-features" className="mx-auto max-w-6xl px-6 py-20 scroll-mt-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 animate-fade-up">
+            <p className="text-xs font-mono text-primary mb-3">DEVELOPER FEATURES</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+              Everything You Need to <span className="gradient-text">Decode a Codebase</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Purpose-built tools for the way developers actually explore unfamiliar repositories.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { t: "Repository Analysis", d: "Deep metadata, language breakdown, and project health signals at a glance.", icon: "📊" },
+              { t: "Architecture Overview", d: "Detect frontend/backend split, application flow, and folder responsibilities.", icon: "🏗️" },
+              { t: "Beginner Guidance", d: "Step-by-step onboarding tailored to the project's actual setup and stack.", icon: "🎓" },
+              { t: "Developer-Focused AI", d: "Structured, technical answers — no generic chatbot fluff or vague summaries.", icon: "🤖" },
+              { t: "GitHub Integration", d: "Direct connection to public GitHub APIs — no installs, no auth, no friction.", icon: "🐙" },
+              { t: "Important Files", d: "Auto-surfaced configs and entry points with explanations of what they do.", icon: "📁" },
+            ].map((f, i) => (
+              <div
+                key={f.t}
+                className="glass rounded-2xl p-6 animate-fade-up hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-glow transition-all duration-300"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <div className="text-2xl mb-3">{f.icon}</div>
+                <h3 className="font-semibold mb-1.5">{f.t}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />
