@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { parseRepoUrl, buildMockAnalysis } from "@/lib/repo";
+import { parseRepoUrl } from "@/lib/repo";
+import { analyzeRepository } from "@/lib/analyze.server";
 
 export const Route = createFileRoute("/api/analyze")({
   server: {
@@ -14,12 +15,11 @@ export const Route = createFileRoute("/api/analyze")({
           if (!parsed) {
             return Response.json({ error: "Invalid GitHub repository URL" }, { status: 400 });
           }
-          // Simulate processing latency
-          await new Promise((r) => setTimeout(r, 1200));
-          const result = buildMockAnalysis(url, parsed.owner, parsed.name);
+          const result = await analyzeRepository(parsed.owner, parsed.name, url);
           return Response.json(result);
         } catch (e) {
-          return Response.json({ error: "Failed to analyze repository" }, { status: 500 });
+          const msg = e instanceof Error ? e.message : "Failed to analyze repository";
+          return Response.json({ error: msg }, { status: 500 });
         }
       },
     },
