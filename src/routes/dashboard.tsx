@@ -142,26 +142,38 @@ function Dashboard() {
               )}
             </div>
 
-            {/* Tech badges */}
-            <div className="flex flex-wrap gap-2 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
-              {data.technologies.map((t) => (
-                <span key={t} className="glass rounded-full px-3 py-1 text-xs font-mono text-primary/90 border-primary/30">{t}</span>
-              ))}
-            </div>
+            {/* Topics */}
+            {data.topics.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
+                {data.topics.slice(0, 10).map((t) => (
+                  <span key={t} className="glass rounded-full px-3 py-1 text-xs font-mono text-primary/90 border-primary/30">#{t}</span>
+                ))}
+              </div>
+            )}
 
             {/* Cards grid */}
-            <div className="grid lg:grid-cols-2 gap-4">
+            <div className="grid lg:grid-cols-2 gap-5">
               <AnalysisCard
                 title="Repository Summary"
+                subtitle="Purpose · architecture · workflow"
                 delay={120}
+                expandable
                 icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8M8 17h6" /></svg>}
               >
-                <p>{data.summary}</p>
+                <p className="text-foreground/90 leading-7">{data.summary}</p>
+                {data.readmeExcerpt && (
+                  <details className="mt-4 group">
+                    <summary className="cursor-pointer text-xs font-mono text-primary hover:text-primary/80 transition-colors">README excerpt ▾</summary>
+                    <pre className="mt-3 p-3 rounded-lg bg-background/60 border border-border/50 text-xs whitespace-pre-wrap font-mono overflow-x-auto">{data.readmeExcerpt}</pre>
+                  </details>
+                )}
               </AnalysisCard>
 
               <AnalysisCard
                 title="Architecture Overview"
+                subtitle="How the codebase fits together"
                 delay={180}
+                expandable
                 icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>}
               >
                 <ul className="space-y-3">
@@ -173,12 +185,16 @@ function Dashboard() {
                   ))}
                 </ul>
                 <div className="mt-4 pt-4 border-t border-border/50">
-                  <p className="text-foreground font-medium mb-2">Key folders</p>
+                  <p className="text-foreground font-medium mb-1.5 text-xs uppercase tracking-wider">Application Flow</p>
+                  <p className="leading-relaxed">{data.applicationFlow}</p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-foreground font-medium mb-2 text-xs uppercase tracking-wider">Key Folders</p>
                   <ul className="space-y-1.5 font-mono text-xs">
                     {data.importantFolders.map((f) => (
                       <li key={f.path} className="flex gap-3">
-                        <span className="text-primary shrink-0">{f.path}</span>
-                        <span className="truncate">{f.purpose}</span>
+                        <span className="text-primary shrink-0 w-28">{f.path}</span>
+                        <span className="text-muted-foreground">{f.purpose}</span>
                       </li>
                     ))}
                   </ul>
@@ -186,8 +202,63 @@ function Dashboard() {
               </AnalysisCard>
 
               <AnalysisCard
+                title="Technologies Used"
+                subtitle="Frameworks · languages · tooling"
+                delay={220}
+                expandable
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>}
+              >
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {([
+                    ["Languages", data.techStack.languages],
+                    ["Frontend", data.techStack.frontend],
+                    ["Backend", data.techStack.backend],
+                    ["Build Tools", data.techStack.buildTools],
+                    ["Package Managers", data.techStack.packageManagers],
+                    ["Deployment", data.techStack.deployment],
+                    ["Testing", data.techStack.testing],
+                    ["Databases", data.techStack.databases],
+                  ] as const).map(([label, items]) => (
+                    items.length > 0 && (
+                      <div key={label}>
+                        <p className="text-[11px] font-mono uppercase tracking-wider text-primary/80 mb-2">{label}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {items.map((t) => (
+                            <span key={t} className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-mono text-foreground/90">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </AnalysisCard>
+
+              <AnalysisCard
+                title="Important Files"
+                subtitle="Where to look first"
+                delay={260}
+                expandable
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>}
+              >
+                {data.importantFiles.length === 0 ? (
+                  <p className="text-muted-foreground italic">No standout config or entry files detected at the root.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {data.importantFiles.map((f) => (
+                      <li key={f.path} className="flex gap-3 items-start">
+                        <code className="shrink-0 text-xs font-mono text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">{f.path}</code>
+                        <span className="text-xs leading-relaxed">{f.why}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </AnalysisCard>
+
+              <AnalysisCard
                 title="Beginner Guide"
-                delay={240}
+                subtitle="Step-by-step onboarding"
+                delay={300}
+                expandable
                 icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v8" /><path d="m4.93 10.93 1.41 1.41" /><path d="M2 18h2" /><path d="M20 18h2" /><path d="m19.07 10.93-1.41 1.41" /><path d="M22 22H2" /><path d="m16 6-4 4-4-4" /><path d="M16 18a4 4 0 0 0-8 0" /></svg>}
               >
                 <ol className="space-y-2.5 list-none">
@@ -201,8 +272,33 @@ function Dashboard() {
               </AnalysisCard>
 
               <AnalysisCard
+                title="Developer Insights"
+                subtitle="Scale · maintainability · activity"
+                delay={340}
+                expandable
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>}
+              >
+                <dl className="space-y-3">
+                  {([
+                    ["Project Scale", data.developerInsights.scale],
+                    ["Maintainability", data.developerInsights.maintainability],
+                    ["Modularity", data.developerInsights.modularity],
+                    ["Collaboration", data.developerInsights.collaboration],
+                    ["Activity", data.developerInsights.activity],
+                  ] as const).map(([k, v]) => (
+                    <div key={k}>
+                      <dt className="text-[11px] font-mono uppercase tracking-wider text-primary/80">{k}</dt>
+                      <dd className="text-foreground/90 mt-0.5">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </AnalysisCard>
+
+              <AnalysisCard
                 title="Ask RepoMind"
-                delay={300}
+                subtitle="Chat with the repository"
+                delay={380}
+                className="lg:col-span-2"
                 icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
               >
                 <ChatPanel repo={data.fullName} />
