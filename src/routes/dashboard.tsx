@@ -19,26 +19,53 @@ export const Route = createFileRoute("/dashboard")({
 
 const STAGES = [
   "Fetching repository metadata…",
+  "Reading README and languages…",
   "Mapping folder structure…",
   "Analyzing architecture…",
   "Generating beginner guide…",
 ];
 
+function SkeletonLine({ w = "100%" }: { w?: string }) {
+  return <div className="h-3 rounded-md bg-primary/10 shimmer" style={{ width: w }} />;
+}
+
+function SkeletonCard() {
+  return (
+    <div className="glass rounded-2xl p-6 space-y-3">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="h-9 w-9 rounded-lg bg-primary/20 shimmer" />
+        <div className="h-4 w-32 rounded-md bg-primary/10 shimmer" />
+      </div>
+      <SkeletonLine />
+      <SkeletonLine w="92%" />
+      <SkeletonLine w="78%" />
+      <SkeletonLine w="85%" />
+    </div>
+  );
+}
+
 function LoadingState() {
   const [stage, setStage] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setStage((s) => Math.min(s + 1, STAGES.length - 1)), 600);
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, STAGES.length - 1)), 700);
     return () => clearInterval(id);
   }, []);
   return (
-    <div className="mx-auto max-w-2xl px-6 py-32 text-center">
-      <div className="inline-block h-14 w-14 rounded-2xl glass shadow-glow animate-pulse-glow flex items-center justify-center mb-6">
-        <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+    <div className="mx-auto max-w-6xl px-6 py-10 animate-fade-up">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-3 glass rounded-full px-5 py-2 mb-4">
+          <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <span className="text-sm font-mono text-muted-foreground">{STAGES[stage]}</span>
+        </div>
+        <div className="h-1 w-full max-w-md mx-auto rounded-full bg-muted overflow-hidden">
+          <div className="h-full shimmer" style={{ background: "var(--gradient-primary)" }} />
+        </div>
       </div>
-      <h2 className="text-2xl font-semibold mb-2">Analyzing repository</h2>
-      <p className="text-muted-foreground font-mono text-sm">{STAGES[stage]}</p>
-      <div className="mt-6 h-1 w-full max-w-sm mx-auto rounded-full bg-muted overflow-hidden">
-        <div className="h-full shimmer" style={{ background: "var(--gradient-primary)" }} />
+      <div className="grid lg:grid-cols-2 gap-4">
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
       </div>
     </div>
   );
