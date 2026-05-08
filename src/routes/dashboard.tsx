@@ -131,10 +131,21 @@ function Dashboard() {
               </Link>
             </div>
 
+            {/* Stats row */}
+            <div className="flex flex-wrap items-center gap-3 mb-4 animate-fade-up" style={{ animationDelay: "40ms" }}>
+              <span className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">★ {data.stars.toLocaleString()}</span>
+              <span className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">⑂ {data.forks.toLocaleString()} forks</span>
+              <span className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">{data.issues.toLocaleString()} open issues</span>
+              <span className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">branch: {data.defaultBranch}</span>
+              {data.license && (
+                <span className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">{data.license}</span>
+              )}
+            </div>
+
             {/* Tech badges */}
             <div className="flex flex-wrap gap-2 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
               {data.technologies.map((t) => (
-                <span key={t} className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">{t}</span>
+                <span key={t} className="glass rounded-full px-3 py-1 text-xs font-mono text-primary/90 border-primary/30">{t}</span>
               ))}
             </div>
 
