@@ -540,34 +540,223 @@ export async function analyzeRepository(owner: string, name: string, url: string
   };
 }
 
+function fmtList(items: string[]): string {
+  return items.length ? items.map((i) => `- ${i}`).join("\n") : "_None detected._";
+}
+
+function fmtFolderList(folders: { path: string; purpose: string }[]): string {
+  return folders.map((f) => `- \`${f.path}\` — ${f.purpose}`).join("\n");
+}
+
+function fmtFileList(files: { path: string; why: string }[]): string {
+  if (!files.length) return "_No standout files detected at the root._";
+  return files.map((f) => `- \`${f.path}\` — ${f.why}`).join("\n");
+}
+
 export function buildChatAnswer(repo: AnalyzeResult, question: string): string {
   const q = question.toLowerCase();
-  const folders = repo.importantFolders.map((f) => f.path).join(", ");
+  const ts = repo.techStack;
 
-  if (q.includes("start") || q.includes("begin") || q.includes("first")) {
-    return `In ${repo.fullName}, start with the README, then look at these top-level folders: ${folders}. ${repo.beginnerGuide[1] ?? ""}`;
+  const header = `**Repository:** \`${repo.fullName}\` · ${repo.stars.toLocaleString()}★`;
+
+  if (q.includes("auth") || q.includes("login") || q.includes("session")) {
+    const candidates = repo.importantFolders.filter((f) => /auth|login|session|user|account|security|middleware/i.test(f.path));
+    return `### Where authentication likely lives
+
+${header}
+
+Authentication isn't a labeled top-level folder in most projects, so look for these signals:
+
+${candidates.length ? fmtFolderList(candidates) : "- Check `src/` or `app/` for an `auth/`, `login/`, or `session/` subfolder.\n- Inspect middleware files for token validation."}
+
+**Common patterns to grep for:**
+- \`jwt\`, \`session\`, \`cookie\`, \`bcrypt\`, \`oauth\`, \`passport\`
+- Route guards or middleware in \`${ts.backend[0] ?? "the server layer"}\`
+- Environment variables ending in \`_SECRET\` or \`_KEY\`
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
+
+  if (q.includes("frontend") || q.includes("ui") || q.includes("client")) {
+    return `### Frontend Structure
+
+${header}
+
+**Detected stack:**
+${fmtList(ts.frontend)}
+
+**Likely UI folders:**
+${fmtFolderList(repo.importantFolders.filter((f) => /src|app|components|pages|client|frontend|ui|hooks|styles/i.test(f.path)))}
+
+**How to explore:**
+1. Open the entry file (typically \`src/main.tsx\`, \`src/index.tsx\`, or \`app/page.tsx\`).
+2. Trace component imports outward to map the UI tree.
+3. Check the routing layer for the URL → page mapping.
+
+> Heuristic answer — real AI integration is coming soon.`;
+  }
+
+  if (q.includes("backend") || q.includes("server") || q.includes("api")) {
+    return `### Backend Architecture
+
+${header}
+
+**Detected backend technologies:**
+${fmtList(ts.backend)}
+
+**Likely server folders:**
+${fmtFolderList(repo.importantFolders.filter((f) => /server|api|backend|routes|controllers|services|cmd|internal/i.test(f.path)))}
+
+**Application flow:**
+${repo.applicationFlow}
+
+**What to read first:**
+- Route registrations / handler index files
+- Middleware definitions (auth, logging, validation)
+- Service layer for business logic
+
+> Heuristic answer — real AI integration is coming soon.`;
+  }
+
+  if (q.includes("start") || q.includes("begin") || q.includes("first") || q.includes("onboard")) {
+    return `### Where a beginner should start
+
+${header}
+
+${repo.beginnerGuide.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+
+> Heuristic answer — real AI integration is coming soon.`;
+  }
+
+  if (q.includes("tech") || q.includes("stack") || q.includes("language") || q.includes("framework")) {
+    return `### Technologies Used
+
+${header}
+
+**Languages**
+${fmtList(ts.languages)}
+
+**Frontend**
+${fmtList(ts.frontend)}
+
+**Backend**
+${fmtList(ts.backend)}
+
+**Build Tools**
+${fmtList(ts.buildTools)}
+
+**Package Managers**
+${fmtList(ts.packageManagers)}
+
+**Deployment**
+${fmtList(ts.deployment)}
+
+**Testing**
+${fmtList(ts.testing)}
+
+> Heuristic answer — real AI integration is coming soon.`;
+  }
+
   if (q.includes("test")) {
-    return repo.techStack.testing.length
-      ? `${repo.fullName} uses ${repo.techStack.testing.join(", ")} for testing. Run the test script in package.json.`
-      : `${repo.fullName} doesn't expose an obvious test suite at the top level — check the README or scripts section.`;
+    return `### Testing Setup
+
+${header}
+
+${ts.testing.length ? `**Detected:**\n${fmtList(ts.testing)}` : "No obvious test framework detected at the root."}
+
+**To find tests:**
+- Look for folders named \`tests/\`, \`test/\`, or \`__tests__/\`
+- Search for files matching \`*.test.*\` or \`*.spec.*\`
+- Check \`package.json\` scripts for a \`test\` command
+
+\`\`\`bash
+npm test
+\`\`\`
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
-  if (q.includes("deploy") || q.includes("ci")) {
-    return repo.techStack.deployment.length
-      ? `Deployment is set up via ${repo.techStack.deployment.join(", ")}. Look in .github/workflows or the relevant config file.`
-      : `No deployment config detected. Check the README for hosting instructions.`;
+
+  if (q.includes("deploy") || q.includes("ci") || q.includes("hosting")) {
+    return `### Deployment & CI
+
+${header}
+
+**Detected deployment tooling:**
+${fmtList(ts.deployment)}
+
+**Where to look:**
+- \`.github/workflows/\` for CI pipelines
+- \`Dockerfile\` / \`docker-compose.yml\` for container builds
+- Provider-specific config (\`vercel.json\`, \`netlify.toml\`, \`wrangler.toml\`)
+
+Default branch: \`${repo.defaultBranch}\`.
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
+
   if (q.includes("architect") || q.includes("structure") || q.includes("organi") || q.includes("flow")) {
-    return `${repo.fullName} flow: ${repo.applicationFlow} Folders: ${folders}.`;
+    return `### Architecture Overview
+
+${header}
+
+${repo.architecture.map((a) => `**${a.title}**\n${a.description}`).join("\n\n")}
+
+**Application flow**
+${repo.applicationFlow}
+
+**Top-level folders**
+${fmtFolderList(repo.importantFolders)}
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
-  if (q.includes("language") || q.includes("stack") || q.includes("tech")) {
-    return `${repo.fullName} stack — languages: ${repo.techStack.languages.join(", ") || "n/a"}; frontend: ${repo.techStack.frontend.join(", ") || "n/a"}; backend: ${repo.techStack.backend.join(", ") || "n/a"}; build: ${repo.techStack.buildTools.join(", ") || "n/a"}.`;
+
+  if (q.includes("file") || q.includes("config") || q.includes("important")) {
+    return `### Important Files
+
+${header}
+
+${fmtFileList(repo.importantFiles)}
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
+
   if (q.includes("license")) {
-    return repo.license ? `${repo.fullName} is licensed under ${repo.license}.` : `${repo.fullName} doesn't expose a license through the GitHub API — check the repo for a LICENSE file.`;
+    return `### License\n\n${header}\n\n${repo.license ? `Licensed under **${repo.license}**.` : "No license metadata exposed via the GitHub API — check the repo for a \`LICENSE\` file."}`;
   }
-  if (q.includes("star") || q.includes("popular") || q.includes("scale")) {
-    return `${repo.developerInsights.scale} ${repo.stars.toLocaleString()} stars, ${repo.forks.toLocaleString()} forks.`;
+
+  if (q.includes("scale") || q.includes("size") || q.includes("popular") || q.includes("active")) {
+    return `### Project Health
+
+${header}
+
+- **Scale** — ${repo.developerInsights.scale}
+- **Maintainability** — ${repo.developerInsights.maintainability}
+- **Modularity** — ${repo.developerInsights.modularity}
+- **Collaboration** — ${repo.developerInsights.collaboration}
+- **Activity** — ${repo.developerInsights.activity}
+
+> Heuristic answer — real AI integration is coming soon.`;
   }
-  return `Based on ${repo.fullName}'s structure (${folders}), the answer to "${question.replace(/\?$/, "")}" likely lives in one of those folders. Open the README and the most relevant folder to dig deeper. (This is a heuristic answer — real AI integration is coming soon.)`;
+
+  // Generic structured fallback
+  return `### Working hypothesis
+
+${header}
+
+I don't have a specific match for _"${question.replace(/\?$/, "")}"_, but here's where the answer most likely lives based on the repo structure:
+
+**Top-level folders**
+${fmtFolderList(repo.importantFolders.slice(0, 5))}
+
+**Detected stack**
+- Languages: ${ts.languages.join(", ") || "n/a"}
+- Frontend: ${ts.frontend.join(", ") || "n/a"}
+- Backend: ${ts.backend.join(", ") || "n/a"}
+
+**Suggested next step**
+1. Open the README for project intent.
+2. Open \`package.json\` (or equivalent manifest) to see scripts.
+3. Search the repo for keywords from your question.
+
+> Heuristic answer — real AI integration is coming soon.`;
 }
