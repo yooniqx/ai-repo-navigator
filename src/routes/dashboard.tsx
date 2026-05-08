@@ -1,0 +1,179 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { AnalysisCard } from "@/components/AnalysisCard";
+import { ChatPanel } from "@/components/ChatPanel";
+import type { AnalyzeResult } from "@/lib/repo";
+
+export const Route = createFileRoute("/dashboard")({
+  validateSearch: (s: Record<string, unknown>) => ({ url: (s.url as string) ?? "" }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — RepoMind" },
+      { name: "description", content: "AI-generated analysis of your GitHub repository." },
+    ],
+  }),
+  component: Dashboard,
+});
+
+const STAGES = [
+  "Fetching repository metadata…",
+  "Mapping folder structure…",
+  "Analyzing architecture…",
+  "Generating beginner guide…",
+];
+
+function LoadingState() {
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, STAGES.length - 1)), 600);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="mx-auto max-w-2xl px-6 py-32 text-center">
+      <div className="inline-block h-14 w-14 rounded-2xl glass shadow-glow animate-pulse-glow flex items-center justify-center mb-6">
+        <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+      <h2 className="text-2xl font-semibold mb-2">Analyzing repository</h2>
+      <p className="text-muted-foreground font-mono text-sm">{STAGES[stage]}</p>
+      <div className="mt-6 h-1 w-full max-w-sm mx-auto rounded-full bg-muted overflow-hidden">
+        <div className="h-full shimmer" style={{ background: "var(--gradient-primary)" }} />
+      </div>
+    </div>
+  );
+}
+
+function Dashboard() {
+  const { url } = Route.useSearch();
+  const [data, setData] = useState<AnalyzeResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      setError("No repository URL provided.");
+      return;
+    }
+    setData(null);
+    setError(null);
+    fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    })
+      .then(async (r) => {
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.error ?? "Failed");
+        setData(json);
+      })
+      .catch((e) => setError(e.message));
+  }, [url]);
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1">
+        {error && (
+          <div className="mx-auto max-w-2xl px-6 py-32 text-center">
+            <h2 className="text-2xl font-semibold mb-2">Couldn't analyze repository</h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            <Link to="/" className="inline-flex rounded-xl px-5 py-2.5 font-medium text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+              Try another repo
+            </Link>
+          </div>
+        )}
+
+        {!error && !data && <LoadingState />}
+
+        {data && (
+          <div className="mx-auto max-w-6xl px-6 py-10">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 animate-fade-up">
+              <div>
+                <p className="text-xs font-mono text-primary mb-2">REPOSITORY ANALYSIS</p>
+                <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+                  <span className="text-muted-foreground">{data.owner}/</span>
+                  <span className="gradient-text">{data.name}</span>
+                </h1>
+                <a href={data.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 mt-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
+                  {data.url} ↗
+                </a>
+              </div>
+              <Link to="/" className="self-start sm:self-end glass rounded-xl px-4 py-2 text-sm hover:border-primary/40 transition-colors">
+                ← New Analysis
+              </Link>
+            </div>
+
+            {/* Tech badges */}
+            <div className="flex flex-wrap gap-2 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
+              {data.technologies.map((t) => (
+                <span key={t} className="glass rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">{t}</span>
+              ))}
+            </div>
+
+            {/* Cards grid */}
+            <div className="grid lg:grid-cols-2 gap-4">
+              <AnalysisCard
+                title="Repository Summary"
+                delay={120}
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8M8 17h6" /></svg>}
+              >
+                <p>{data.summary}</p>
+              </AnalysisCard>
+
+              <AnalysisCard
+                title="Architecture Overview"
+                delay={180}
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>}
+              >
+                <ul className="space-y-3">
+                  {data.architecture.map((a) => (
+                    <li key={a.title}>
+                      <p className="text-foreground font-medium">{a.title}</p>
+                      <p>{a.description}</p>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-foreground font-medium mb-2">Key folders</p>
+                  <ul className="space-y-1.5 font-mono text-xs">
+                    {data.importantFolders.map((f) => (
+                      <li key={f.path} className="flex gap-3">
+                        <span className="text-primary shrink-0">{f.path}</span>
+                        <span className="truncate">{f.purpose}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </AnalysisCard>
+
+              <AnalysisCard
+                title="Beginner Guide"
+                delay={240}
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v8" /><path d="m4.93 10.93 1.41 1.41" /><path d="M2 18h2" /><path d="M20 18h2" /><path d="m19.07 10.93-1.41 1.41" /><path d="M22 22H2" /><path d="m16 6-4 4-4-4" /><path d="M16 18a4 4 0 0 0-8 0" /></svg>}
+              >
+                <ol className="space-y-2.5 list-none">
+                  {data.beginnerGuide.map((step, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="shrink-0 h-5 w-5 rounded-full text-[11px] font-mono font-semibold flex items-center justify-center text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>{i + 1}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </AnalysisCard>
+
+              <AnalysisCard
+                title="Ask RepoMind"
+                delay={300}
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
+              >
+                <ChatPanel repo={data.fullName} />
+              </AnalysisCard>
+            </div>
+          </div>
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
+}
