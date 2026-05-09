@@ -557,206 +557,848 @@ export function buildChatAnswer(repo: AnalyzeResult, question: string): string {
   const q = question.toLowerCase();
   const ts = repo.techStack;
 
-  const header = `**Repository:** \`${repo.fullName}\` · ${repo.stars.toLocaleString()}★`;
+  const header = `**Repository:** \`${repo.fullName}\` · ${repo.stars.toLocaleString()}★ · ${repo.forks.toLocaleString()} forks`;
 
   if (q.includes("auth") || q.includes("login") || q.includes("session")) {
     const candidates = repo.importantFolders.filter((f) => /auth|login|session|user|account|security|middleware/i.test(f.path));
-    return `### Where authentication likely lives
+    const authFiles = repo.importantFiles.filter((f) => /auth|login|session|middleware|guard/i.test(f.path));
+    
+    return `### Authentication Architecture
 
 ${header}
 
-Authentication isn't a labeled top-level folder in most projects, so look for these signals:
+#### Where Authentication Lives
 
-${candidates.length ? fmtFolderList(candidates) : "- Check `src/` or `app/` for an `auth/`, `login/`, or `session/` subfolder.\n- Inspect middleware files for token validation."}
+Authentication logic is typically distributed across multiple layers in modern applications:
 
-**Common patterns to grep for:**
-- \`jwt\`, \`session\`, \`cookie\`, \`bcrypt\`, \`oauth\`, \`passport\`
-- Route guards or middleware in \`${ts.backend[0] ?? "the server layer"}\`
-- Environment variables ending in \`_SECRET\` or \`_KEY\`
+${candidates.length ? `**Detected folders:**\n${fmtFolderList(candidates)}` : "**No dedicated auth folder detected** — authentication may be:\n- Embedded in middleware files\n- Part of the API/routes layer\n- Handled by a third-party service (Auth0, Clerk, Supabase Auth)"}
 
-> Heuristic answer — real AI integration is coming soon.`;
+${authFiles.length ? `\n**Related files:**\n${fmtFileList(authFiles)}` : ""}
+
+#### Common Authentication Patterns
+
+Based on the detected stack (${ts.backend.join(", ") || "server-side logic"}), look for these patterns:
+
+**Session-based authentication:**
+- Session middleware in server initialization
+- Cookie parsing and validation
+- Session store (Redis, database, in-memory)
+- Login/logout route handlers
+
+**Token-based authentication (JWT):**
+- Token generation on login (typically in \`/api/auth/login\`)
+- Token verification middleware protecting routes
+- Refresh token logic for long-lived sessions
+- Token storage strategy (httpOnly cookies vs localStorage)
+
+**OAuth/Social login:**
+- OAuth provider configuration (Google, GitHub, etc.)
+- Callback routes handling OAuth redirects
+- User profile mapping from OAuth providers
+
+#### Where to Start
+
+1. **Check environment variables** — Look for \`.env.example\` or config files containing:
+   - \`JWT_SECRET\`, \`SESSION_SECRET\`, \`AUTH_SECRET\`
+   - OAuth client IDs and secrets
+   - Database connection strings for user storage
+
+2. **Find the middleware** — Search for:
+   \`\`\`bash
+   # Common auth middleware patterns
+   grep -r "authenticate" src/
+   grep -r "verifyToken" src/
+   grep -r "requireAuth" src/
+   grep -r "passport" src/
+   \`\`\`
+
+3. **Locate auth routes** — Check:
+   - \`${ts.backend.length ? `${repo.importantFolders.find((f) => /api|routes|server/i.test(f.path))?.path || "api/"}/auth/` : "api/auth/"}\`
+   - Login, logout, register, password reset endpoints
+   - Protected route examples
+
+4. **User model/schema** — Find where users are defined:
+   - Database models (\`models/User\`, \`prisma/schema.prisma\`)
+   - TypeScript interfaces for user objects
+   - Password hashing logic (bcrypt, argon2)
+
+#### Tech Stack Context
+
+${ts.backend.length ? `**Backend:** ${ts.backend.join(", ")}\n` : ""}${ts.databases.length ? `**Database/ORM:** ${ts.databases.join(", ")}\n` : ""}${ts.frontend.length ? `**Frontend:** ${ts.frontend.join(", ")} — check for auth context providers, protected route wrappers\n` : ""}
+
+#### Security Checklist
+
+When reviewing authentication code, verify:
+- [ ] Passwords are hashed (never stored plain text)
+- [ ] Tokens have expiration times
+- [ ] HTTPS is enforced in production
+- [ ] CSRF protection is enabled for session-based auth
+- [ ] Rate limiting on login endpoints
+- [ ] Secure cookie flags (httpOnly, secure, sameSite)
+
+> **Note:** This is a heuristic analysis based on repository structure. For definitive answers, examine the actual implementation files.`;
   }
 
   if (q.includes("frontend") || q.includes("ui") || q.includes("client")) {
-    return `### Frontend Structure
+    const frontendFolders = repo.importantFolders.filter((f) => /src|app|components|pages|client|frontend|ui|hooks|styles|assets|public/i.test(f.path));
+    const entryFiles = repo.importantFiles.filter((f) => /index\.(tsx?|jsx?)|main\.(tsx?|jsx?)|app\.(tsx?|jsx?)|_app\.(tsx?|jsx?)|page\.(tsx?|jsx?)/i.test(f.path));
+    
+    return `### Frontend Architecture & Structure
 
 ${header}
 
-**Detected stack:**
-${fmtList(ts.frontend)}
+#### Detected Frontend Stack
 
-**Likely UI folders:**
-${fmtFolderList(repo.importantFolders.filter((f) => /src|app|components|pages|client|frontend|ui|hooks|styles/i.test(f.path)))}
+${ts.frontend.length ? fmtList(ts.frontend) : "_No specific frontend framework detected — likely vanilla JS/HTML or a minimal setup._"}
 
-**How to explore:**
-1. Open the entry file (typically \`src/main.tsx\`, \`src/index.tsx\`, or \`app/page.tsx\`).
-2. Trace component imports outward to map the UI tree.
-3. Check the routing layer for the URL → page mapping.
+${ts.frontend.length ? `\n**Framework Context:**\n${ts.frontend.map((f) => {
+  if (f.includes("Next.js")) return "- **Next.js** — React framework with file-based routing, SSR/SSG, and API routes";
+  if (f.includes("React")) return "- **React** — Component-based UI library with virtual DOM";
+  if (f.includes("Vue")) return "- **Vue** — Progressive framework with reactive data binding";
+  if (f.includes("Angular")) return "- **Angular** — Full-featured framework with TypeScript and dependency injection";
+  if (f.includes("Svelte")) return "- **SvelteKit** — Compiler-based framework with minimal runtime";
+  if (f.includes("Astro")) return "- **Astro** — Content-focused framework with partial hydration";
+  if (f.includes("Tailwind")) return "- **Tailwind CSS** — Utility-first CSS framework";
+  if (f.includes("Expo")) return "- **Expo/React Native** — Cross-platform mobile development";
+  return `- **${f}**`;
+}).join("\n")}` : ""}
 
-> Heuristic answer — real AI integration is coming soon.`;
+#### Frontend Folder Structure
+
+${frontendFolders.length ? fmtFolderList(frontendFolders) : "_No clear frontend folders detected at root level._"}
+
+${frontendFolders.length ? `\n**Typical organization pattern:**\n- **components/** — Reusable UI building blocks (buttons, cards, modals)\n- **pages/** or **routes/** — Top-level views mapped to URLs\n- **hooks/** — Custom React hooks for shared logic\n- **styles/** — Global CSS, theme variables, utility classes\n- **assets/** — Images, fonts, icons bundled with the app\n- **public/** — Static files served as-is (favicon, robots.txt)` : ""}
+
+#### Entry Points & Application Bootstrap
+
+${entryFiles.length ? `**Detected entry files:**\n${fmtFileList(entryFiles)}\n` : "**Common entry points to look for:**\n- \`src/index.tsx\` or \`src/main.tsx\` — React app initialization\n- \`src/App.tsx\` — Root component\n- \`app/page.tsx\` — Next.js app directory entry\n- \`pages/_app.tsx\` — Next.js pages directory wrapper\n"}
+
+**What happens at startup:**
+1. Entry file imports root component and dependencies
+2. React (or framework) initializes and mounts to DOM
+3. Router sets up navigation and renders initial route
+4. Global providers wrap the app (theme, auth, data fetching)
+5. Component tree renders based on current URL
+
+#### Application Workflow
+
+${repo.applicationFlow}
+
+#### Routing Strategy
+
+${ts.frontend.some((f) => f.includes("Next.js")) ? "**Next.js file-based routing:**\n- Files in \`pages/\` or \`app/\` automatically become routes\n- \`pages/index.tsx\` → \`/\`\n- \`pages/about.tsx\` → \`/about\`\n- \`pages/blog/[slug].tsx\` → \`/blog/:slug\` (dynamic)\n- \`app/dashboard/page.tsx\` → \`/dashboard\` (app directory)" :
+ts.frontend.some((f) => f.includes("React")) ? "**Client-side routing (likely React Router or TanStack Router):**\n- Routes defined in a central config file\n- Components mapped to URL patterns\n- Navigation via \`<Link>\` components or programmatic navigation\n- URL changes don't trigger full page reloads" :
+"**Check the routing implementation:**\n- Look for route definitions in the entry file or a dedicated router file\n- Search for \`<Route>\`, \`createBrowserRouter\`, or framework-specific routing"}
+
+#### State Management
+
+Look for these patterns in the codebase:
+
+**Local state:**
+- \`useState\`, \`useReducer\` in components
+- Props passed down the component tree
+
+**Global state:**
+- Context API (\`createContext\`, \`useContext\`)
+- Redux (\`store.ts\`, \`reducers/\`, \`actions/\`)
+- Zustand (\`stores/\` with \`create()\`)
+- Jotai/Recoil (atom-based state)
+
+**Server state:**
+- React Query / TanStack Query (\`useQuery\`, \`useMutation\`)
+- SWR (\`useSWR\` hooks)
+- Apollo Client (GraphQL)
+
+#### Styling Approach
+
+${ts.frontend.includes("Tailwind CSS") ? "**Tailwind CSS detected:**\n- Utility classes applied directly in JSX (\`className=\"flex items-center gap-2\"\`)\n- Configuration in \`tailwind.config.js/ts\`\n- Custom theme extensions and plugins\n- PostCSS processes Tailwind directives" :
+"**Check for:**\n- CSS Modules (\`*.module.css\` files)\n- Styled Components (\`styled.div\\`...\\`\`)\n- Emotion (\`css={...}\` prop)\n- Plain CSS/SCSS in \`styles/\` folder"}
+
+#### How to Explore the Frontend
+
+1. **Start at the entry point** — Open \`${entryFiles[0]?.path || "src/index.tsx"}\` and trace imports
+2. **Map the component tree** — Follow the hierarchy from root to leaves
+3. **Understand routing** — Find how URLs map to components
+4. **Check state flow** — Identify where data lives and how it moves
+5. **Inspect a feature end-to-end** — Pick one user flow (e.g., login) and trace it through components, state, and API calls
+
+#### Developer Tools
+
+- **React DevTools** — Inspect component tree, props, state
+- **Redux DevTools** — Time-travel debugging for Redux state
+- **Network tab** — Monitor API calls and responses
+- **Console** — Check for errors, warnings, logs
+
+> **Note:** This analysis is based on repository structure and detected files. Actual implementation may vary.`;
   }
 
   if (q.includes("backend") || q.includes("server") || q.includes("api")) {
-    return `### Backend Architecture
+    const backendFolders = repo.importantFolders.filter((f) => /server|api|backend|routes|controllers|services|cmd|internal|models|middleware/i.test(f.path));
+    const serverFiles = repo.importantFiles.filter((f) => /server\.(ts|js)|app\.(ts|js)|main\.(py|go|rs)|index\.(ts|js)/i.test(f.path));
+    
+    return `### Backend Architecture & API Design
 
 ${header}
 
-**Detected backend technologies:**
-${fmtList(ts.backend)}
+#### Detected Backend Stack
 
-**Likely server folders:**
-${fmtFolderList(repo.importantFolders.filter((f) => /server|api|backend|routes|controllers|services|cmd|internal/i.test(f.path)))}
+${ts.backend.length ? fmtList(ts.backend) : "_No clear backend framework detected — may be a frontend-only project or using serverless functions._"}
 
-**Application flow:**
+${ts.backend.length ? `\n**Technology Context:**\n${ts.backend.map((b) => {
+  if (b.includes("Node.js")) return "- **Node.js server** — JavaScript runtime for server-side code";
+  if (b.includes("API routes")) return "- **API routes** — Endpoint handlers (REST or GraphQL)";
+  if (b.includes("Python")) return "- **Python backend** — Likely Flask, FastAPI, or Django";
+  if (b.includes("Django")) return "- **Django** — Full-featured Python web framework with ORM";
+  if (b.includes("Flask")) return "- **Flask** — Lightweight Python web framework";
+  if (b.includes("Go")) return "- **Go service** — Compiled, concurrent backend service";
+  if (b.includes("Rust")) return "- **Rust binary** — High-performance, memory-safe service";
+  if (b.includes("Ruby")) return "- **Ruby on Rails** — Convention-over-configuration web framework";
+  return `- **${b}**`;
+}).join("\n")}` : ""}
+
+#### Backend Folder Structure
+
+${backendFolders.length ? fmtFolderList(backendFolders) : "_No dedicated backend folders detected — API logic may be co-located with frontend or in serverless functions._"}
+
+${backendFolders.length ? `\n**Common backend organization:**\n- **routes/** or **api/** — HTTP endpoint definitions\n- **controllers/** — Request handlers that orchestrate business logic\n- **services/** — Business logic layer (reusable, testable)\n- **models/** — Data models and database schemas\n- **middleware/** — Request/response interceptors (auth, logging, validation)\n- **utils/** or **helpers/** — Shared utility functions` : ""}
+
+#### Server Entry Point
+
+${serverFiles.length ? `**Detected server files:**\n${fmtFileList(serverFiles)}\n` : "**Look for these entry points:**\n- \`server.ts\` or \`server.js\` — Express/Fastify/Hono server\n- \`app.ts\` or \`app.js\` — Application initialization\n- \`main.py\` — Python entry script\n- \`main.go\` — Go main package\n- \`src/index.ts\` — TypeScript server entry\n"}
+
+**Server initialization flow:**
+1. Import dependencies (framework, database, middleware)
+2. Initialize app instance (\`express()\`, \`Hono()\`, etc.)
+3. Configure middleware (CORS, body parsing, logging)
+4. Register routes and handlers
+5. Connect to database/external services
+6. Start listening on port (typically 3000, 8000, or from env)
+
+#### Application Request Flow
+
 ${repo.applicationFlow}
 
-**What to read first:**
-- Route registrations / handler index files
-- Middleware definitions (auth, logging, validation)
-- Service layer for business logic
+**Typical request lifecycle:**
+1. **Client sends HTTP request** → \`POST /api/users\`
+2. **Server receives request** → Framework routes to handler
+3. **Middleware chain executes** → Auth, validation, logging
+4. **Controller processes request** → Extracts data, calls services
+5. **Service layer executes business logic** → Database queries, external APIs
+6. **Response formatted and sent** → JSON, HTML, or error response
 
-> Heuristic answer — real AI integration is coming soon.`;
+#### API Architecture Patterns
+
+${backendFolders.some((f) => /routes/i.test(f.path)) ? "**Route-based architecture:**\n- Each route file handles a resource (\`users.ts\`, \`posts.ts\`)\n- Routes define HTTP methods (GET, POST, PUT, DELETE)\n- Handlers are thin, delegating to services\n\nExample structure:\n\`\`\`\nroutes/\n  users.ts    → /api/users (GET, POST)\n  posts.ts    → /api/posts (GET, POST, PUT, DELETE)\n  auth.ts     → /api/auth/login, /api/auth/logout\n\`\`\`" : ""}
+
+${backendFolders.some((f) => /controllers/i.test(f.path)) ? "\n**MVC (Model-View-Controller) pattern:**\n- **Models** — Data structures and database schemas\n- **Views** — Response templates (or JSON for APIs)\n- **Controllers** — Request handlers that coordinate models and views\n\nRequest flow: Route → Controller → Model → Database → Controller → View → Response" : ""}
+
+${backendFolders.some((f) => /services/i.test(f.path)) ? "\n**Service layer pattern:**\n- Controllers are thin, handling HTTP concerns only\n- Services contain business logic (reusable, testable)\n- Services may call other services or repositories\n- Promotes separation of concerns and testability" : ""}
+
+#### Database Integration
+
+${ts.databases.length ? `**Detected database tools:**\n${fmtList(ts.databases)}\n` : "**Check for database integration:**\n- ORM configuration (Prisma, TypeORM, Sequelize)\n- Raw SQL queries or query builders\n- Migration files tracking schema changes\n"}
+
+${ts.databases.includes("Prisma") ? "**Prisma workflow:**\n1. Define schema in \`prisma/schema.prisma\`\n2. Run \`prisma migrate dev\` to create migrations\n3. Use \`prisma.client\` in code for type-safe queries\n4. Models auto-generated from schema" : ""}
+
+${ts.databases.includes("SQL migrations") ? "\n**Migration-based approach:**\n- Migrations in \`migrations/\` folder (timestamped)\n- Each migration has \`up\` (apply) and \`down\` (rollback)\n- Run migrations on deploy to update production schema\n- Never edit old migrations — create new ones" : ""}
+
+#### Middleware & Request Processing
+
+Common middleware patterns to look for:
+
+**Authentication middleware:**
+\`\`\`typescript
+// Protects routes, verifies tokens/sessions
+app.use('/api/protected', authenticateUser);
+\`\`\`
+
+**Validation middleware:**
+\`\`\`typescript
+// Validates request body against schema
+app.post('/api/users', validateBody(userSchema), createUser);
+\`\`\`
+
+**Error handling middleware:**
+\`\`\`typescript
+// Catches errors, formats responses
+app.use(errorHandler);
+\`\`\`
+
+**Logging middleware:**
+\`\`\`typescript
+// Logs requests, responses, timing
+app.use(logger);
+\`\`\`
+
+#### Environment Configuration
+
+Look for environment variables in:
+- \`.env.example\` — Template showing required variables
+- \`config/\` folder — Configuration modules
+- Server initialization code — \`process.env.PORT\`, etc.
+
+**Common variables:**
+- \`PORT\` — Server port (default 3000, 8000)
+- \`DATABASE_URL\` — Database connection string
+- \`JWT_SECRET\` — Token signing key
+- \`NODE_ENV\` — Environment (development, production)
+- \`API_KEY\` — External service credentials
+
+#### How to Explore the Backend
+
+1. **Find the entry point** — \`${serverFiles[0]?.path || "server.ts"}\` or equivalent
+2. **Map the routes** — List all endpoints and their handlers
+3. **Trace a request** — Pick one endpoint and follow it through middleware → controller → service → database
+4. **Understand data models** — Check schemas, migrations, or model definitions
+5. **Review middleware** — See what runs on every request (auth, logging, etc.)
+6. **Check error handling** — How are errors caught and formatted?
+
+#### Testing the API
+
+${ts.testing.length ? `**Testing tools detected:** ${ts.testing.join(", ")}\n\n` : ""}**Manual testing:**
+- Use Postman, Insomnia, or curl to hit endpoints
+- Check request/response formats
+- Test error cases (invalid data, auth failures)
+
+**Automated testing:**
+- Unit tests for services and utilities
+- Integration tests for API endpoints
+- E2E tests for full user flows
+
+> **Note:** This analysis is based on repository structure. Actual implementation details require code inspection.`;
   }
 
   if (q.includes("start") || q.includes("begin") || q.includes("first") || q.includes("onboard")) {
-    return `### Where a beginner should start
+    return `### Beginner's Onboarding Guide
 
 ${header}
 
-${repo.beginnerGuide.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+#### Step-by-Step Getting Started
 
-> Heuristic answer — real AI integration is coming soon.`;
+${repo.beginnerGuide.map((s, i) => `**${i + 1}. ${s.split("—")[0].trim()}**\n   ${s.split("—").slice(1).join("—").trim() || s}`).join("\n\n")}
+
+#### Quick Start Commands
+
+${ts.packageManagers.includes("Bun") ? "**Using Bun:**\n\`\`\`bash\nbun install\nbun run dev\n\`\`\`" :
+ts.packageManagers.includes("pnpm") ? "**Using pnpm:**\n\`\`\`bash\npnpm install\npnpm dev\n\`\`\`" :
+ts.packageManagers.includes("Yarn") ? "**Using Yarn:**\n\`\`\`bash\nyarn install\nyarn dev\n\`\`\`" :
+ts.packageManagers.includes("npm") ? "**Using npm:**\n\`\`\`bash\nnpm install\nnpm run dev\n\`\`\`" :
+ts.packageManagers.includes("pip") ? "**Using Python:**\n\`\`\`bash\npip install -r requirements.txt\npython main.py\n\`\`\`" :
+ts.packageManagers.includes("Go modules") ? "**Using Go:**\n\`\`\`bash\ngo mod download\ngo run .\n\`\`\`" :
+ts.packageManagers.includes("Cargo") ? "**Using Rust:**\n\`\`\`bash\ncargo build\ncargo run\n\`\`\`" :
+"Check the README for setup instructions."}
+
+#### What to Read First
+
+1. **README.md** — Project overview, setup instructions, and contribution guidelines
+2. **${repo.importantFiles[0]?.path || "package.json"}** — Dependencies and available scripts
+3. **${repo.importantFiles.find((f) => /index|main|app|server/i.test(f.path))?.path || "Entry file"}** — Application entry point
+
+#### Common Pitfalls for Beginners
+
+- **Missing environment variables** — Copy \`.env.example\` to \`.env\` if it exists
+- **Wrong Node version** — Check if there's a \`.nvmrc\` or \`engines\` field in package.json
+- **Port conflicts** — Default ports (3000, 8000) may be in use
+- **Database not running** — Some projects need local PostgreSQL, MongoDB, etc.
+
+> **Note:** This guidance is generated from repository structure. Always check the README for project-specific instructions.`;
   }
 
   if (q.includes("tech") || q.includes("stack") || q.includes("language") || q.includes("framework")) {
-    return `### Technologies Used
+    return `### Complete Technology Stack
 
 ${header}
 
-**Languages**
+#### Programming Languages
+
 ${fmtList(ts.languages)}
 
-**Frontend**
-${fmtList(ts.frontend)}
+${ts.languages.length > 1 ? `\n**Multi-language project** — Different languages serve different purposes:\n${ts.languages.map((lang) => {
+  if (lang === "TypeScript" || lang === "JavaScript") return `- **${lang}** — Likely frontend/backend web code`;
+  if (lang === "Python") return `- **${lang}** — Backend services, data processing, or ML`;
+  if (lang === "Go") return `- **${lang}** — High-performance backend services`;
+  if (lang === "Rust") return `- **${lang}** — Systems programming, performance-critical code`;
+  if (lang === "HTML") return `- **${lang}** — Markup for web pages`;
+  if (lang === "CSS") return `- **${lang}** — Styling and layout`;
+  return `- **${lang}**`;
+}).join("\n")}` : ""}
 
-**Backend**
-${fmtList(ts.backend)}
+#### Frontend Technologies
 
-**Build Tools**
+${ts.frontend.length ? fmtList(ts.frontend) : "_No frontend framework detected — may be a backend-only or CLI project._"}
+
+${ts.frontend.length ? `\n**Frontend architecture:**\n${ts.frontend.includes("Next.js") ? "- Server-side rendering with React\n- File-based routing\n- API routes co-located with frontend" :
+ts.frontend.includes("React") ? "- Component-based UI\n- Virtual DOM for efficient updates\n- Likely client-side routing" :
+ts.frontend.includes("Vue") ? "- Progressive framework\n- Reactive data binding\n- Single-file components" :
+"- Check the framework documentation for architecture patterns"}` : ""}
+
+#### Backend Technologies
+
+${ts.backend.length ? fmtList(ts.backend) : "_No backend detected — may be a static site or frontend-only app._"}
+
+${ts.backend.length ? `\n**Backend patterns:**\n${ts.backend.some((b) => b.includes("Node.js")) ? "- JavaScript/TypeScript on the server\n- Async I/O for handling concurrent requests\n- npm ecosystem for packages" :
+ts.backend.some((b) => b.includes("Python")) ? "- Python web framework (Flask/Django/FastAPI)\n- Rich ecosystem for data processing\n- WSGI/ASGI server deployment" :
+ts.backend.some((b) => b.includes("Go")) ? "- Compiled binary for fast startup\n- Built-in concurrency with goroutines\n- Static typing and performance" :
+"- Check the entry file for framework initialization"}` : ""}
+
+#### Build & Development Tools
+
 ${fmtList(ts.buildTools)}
 
-**Package Managers**
+${ts.buildTools.includes("TypeScript") ? "\n**TypeScript benefits:**\n- Static type checking catches errors early\n- Better IDE autocomplete and refactoring\n- Compiles to JavaScript for runtime" : ""}
+
+${ts.buildTools.includes("Vite") ? "\n**Vite features:**\n- Lightning-fast HMR (Hot Module Replacement)\n- Native ES modules in dev\n- Optimized production builds" : ""}
+
+#### Package Management
+
 ${fmtList(ts.packageManagers)}
 
-**Deployment**
-${fmtList(ts.deployment)}
+#### Deployment & Infrastructure
 
-**Testing**
-${fmtList(ts.testing)}
+${ts.deployment.length ? fmtList(ts.deployment) : "_No deployment configuration detected at root level._"}
 
-> Heuristic answer — real AI integration is coming soon.`;
+${ts.deployment.includes("Docker") ? "\n**Docker deployment:**\n- Containerized application\n- Consistent environment across dev/prod\n- Check \`Dockerfile\` for build steps" : ""}
+
+${ts.deployment.includes("Vercel") ? "\n**Vercel deployment:**\n- Optimized for Next.js and frontend frameworks\n- Automatic deployments from Git\n- Edge network for global performance" : ""}
+
+${ts.deployment.includes("Cloudflare Workers") ? "\n**Cloudflare Workers:**\n- Edge computing platform\n- Runs code close to users globally\n- Serverless with instant cold starts" : ""}
+
+#### Testing Infrastructure
+
+${ts.testing.length ? fmtList(ts.testing) : "_No testing framework detected — tests may be minimal or absent._"}
+
+${ts.testing.length ? `\n**Testing strategy:**\n${ts.testing.includes("Vitest") || ts.testing.includes("Jest") ? "- Unit tests for individual functions/components\n- Run with \`npm test\` or similar command" : ""}${ts.testing.includes("Playwright") || ts.testing.includes("Cypress") ? "\n- E2E tests simulating real user interactions\n- Browser automation for integration testing" : ""}` : ""}
+
+#### Database & Data Layer
+
+${ts.databases.length ? fmtList(ts.databases) : "_No database tools detected — may use external services or be stateless._"}
+
+> **Note:** This stack analysis is based on configuration files and folder structure. Actual usage may vary.`;
   }
 
   if (q.includes("test")) {
-    return `### Testing Setup
+    return `### Testing Strategy & Setup
 
 ${header}
 
-${ts.testing.length ? `**Detected:**\n${fmtList(ts.testing)}` : "No obvious test framework detected at the root."}
+#### Detected Testing Tools
 
-**To find tests:**
-- Look for folders named \`tests/\`, \`test/\`, or \`__tests__/\`
-- Search for files matching \`*.test.*\` or \`*.spec.*\`
-- Check \`package.json\` scripts for a \`test\` command
+${ts.testing.length ? fmtList(ts.testing) : "**No testing framework detected** — The project may not have automated tests, or they're configured in a non-standard way."}
 
-\`\`\`bash
-npm test
+#### Test Organization
+
+**Where to find tests:**
+- \`tests/\` or \`test/\` — Dedicated test directory
+- \`__tests__/\` — Jest convention (co-located with source)
+- \`*.test.ts\` or \`*.spec.ts\` — Test files alongside source code
+- \`e2e/\` or \`integration/\` — End-to-end test suites
+
+**Common test patterns:**
+\`\`\`
+src/
+  utils/
+    math.ts
+    math.test.ts     ← Unit test
+  components/
+    Button.tsx
+    Button.test.tsx  ← Component test
+tests/
+  integration/
+    api.test.ts      ← Integration test
+  e2e/
+    user-flow.spec.ts ← E2E test
 \`\`\`
 
-> Heuristic answer — real AI integration is coming soon.`;
+#### Running Tests
+
+${ts.testing.includes("Vitest") ? "**Vitest (fast Vite-native testing):**\n\`\`\`bash\nnpm run test        # Run all tests\nnpm run test:watch  # Watch mode\nnpm run test:ui     # UI mode\n\`\`\`" :
+ts.testing.includes("Jest") ? "**Jest (popular JavaScript testing):**\n\`\`\`bash\nnpm test           # Run all tests\nnpm test -- --watch # Watch mode\nnpm test -- --coverage # Coverage report\n\`\`\`" :
+ts.testing.includes("Playwright") ? "**Playwright (E2E testing):**\n\`\`\`bash\nnpx playwright test           # Run all E2E tests\nnpx playwright test --ui      # UI mode\nnpx playwright test --debug   # Debug mode\n\`\`\`" :
+ts.testing.includes("Cypress") ? "**Cypress (E2E testing):**\n\`\`\`bash\nnpx cypress open   # Interactive mode\nnpx cypress run    # Headless mode\n\`\`\`" :
+"**Check package.json scripts:**\n\`\`\`bash\nnpm test  # or yarn test, pnpm test\n\`\`\`"}
+
+#### Test Types Explained
+
+**Unit Tests:**
+- Test individual functions or components in isolation
+- Fast execution, no external dependencies
+- Example: Testing a utility function that formats dates
+
+**Integration Tests:**
+- Test how multiple units work together
+- May involve database, API calls, or file system
+- Example: Testing an API endpoint that queries the database
+
+**End-to-End (E2E) Tests:**
+- Test complete user workflows in a real browser
+- Slowest but most comprehensive
+- Example: User signs up, logs in, creates a post, logs out
+
+#### Writing Your First Test
+
+${ts.testing.includes("Vitest") || ts.testing.includes("Jest") ? "**Example unit test:**\n\`\`\`typescript\nimport { describe, it, expect } from 'vitest';\nimport { add } from './math';\n\ndescribe('add function', () => {\n  it('should add two numbers', () => {\n    expect(add(2, 3)).toBe(5);\n  });\n});\n\`\`\`" : ""}
+
+${ts.testing.includes("Playwright") ? "\n**Example E2E test:**\n\`\`\`typescript\nimport { test, expect } from '@playwright/test';\n\ntest('user can log in', async ({ page }) => {\n  await page.goto('/login');\n  await page.fill('[name=\"email\"]', 'user@example.com');\n  await page.fill('[name=\"password\"]', 'password123');\n  await page.click('button[type=\"submit\"]');\n  await expect(page).toHaveURL('/dashboard');\n});\n\`\`\`" : ""}
+
+#### Test Coverage
+
+To generate a coverage report:
+\`\`\`bash
+npm test -- --coverage
+\`\`\`
+
+**Good coverage targets:**
+- **80%+ for critical business logic**
+- **60%+ for overall codebase**
+- **100% for security-sensitive code**
+
+> **Note:** High coverage doesn't guarantee quality — focus on testing critical paths and edge cases.`;
   }
 
   if (q.includes("deploy") || q.includes("ci") || q.includes("hosting")) {
-    return `### Deployment & CI
+    return `### Deployment & CI/CD Pipeline
 
 ${header}
 
-**Detected deployment tooling:**
-${fmtList(ts.deployment)}
+#### Detected Deployment Tools
 
-**Where to look:**
-- \`.github/workflows/\` for CI pipelines
-- \`Dockerfile\` / \`docker-compose.yml\` for container builds
-- Provider-specific config (\`vercel.json\`, \`netlify.toml\`, \`wrangler.toml\`)
+${ts.deployment.length ? fmtList(ts.deployment) : "_No deployment configuration detected — may be deployed manually or through undocumented process._"}
 
-Default branch: \`${repo.defaultBranch}\`.
+#### Continuous Integration
 
-> Heuristic answer — real AI integration is coming soon.`;
+${repo.importantFolders.some((f) => f.path === ".github") ? "**GitHub Actions detected:**\n- Workflows in \`.github/workflows/\`\n- Automated on push, PR, or schedule\n- Common jobs: lint, test, build, deploy\n\n**Check workflows:**\n\`\`\`bash\nls .github/workflows/\n\`\`\`" : "**No CI configuration detected** — Consider adding:\n- GitHub Actions (\`.github/workflows/\`)\n- GitLab CI (\`.gitlab-ci.yml\`)\n- CircleCI (\`.circleci/config.yml\`)"}
+
+#### Deployment Strategies
+
+${ts.deployment.includes("Docker") ? "**Docker Deployment:**\n\n1. **Build the image:**\n   \`\`\`bash\n   docker build -t ${repo.name} .\n   \`\`\`\n\n2. **Run locally:**\n   \`\`\`bash\n   docker run -p 3000:3000 ${repo.name}\n   \`\`\`\n\n3. **Deploy to production:**\n   - Push to Docker Hub or container registry\n   - Deploy to Kubernetes, ECS, or Docker Swarm\n   - Use docker-compose for multi-container apps" : ""}
+
+${ts.deployment.includes("Vercel") ? "\n**Vercel Deployment:**\n\n1. **Install Vercel CLI:**\n   \`\`\`bash\n   npm i -g vercel\n   \`\`\`\n\n2. **Deploy:**\n   \`\`\`bash\n   vercel\n   \`\`\`\n\n3. **Production:**\n   \`\`\`bash\n   vercel --prod\n   \`\`\`\n\n**Features:**\n- Automatic HTTPS\n- Global CDN\n- Preview deployments for PRs\n- Environment variables in dashboard" : ""}
+
+${ts.deployment.includes("Cloudflare Workers") ? "\n**Cloudflare Workers Deployment:**\n\n1. **Install Wrangler:**\n   \`\`\`bash\n   npm i -g wrangler\n   \`\`\`\n\n2. **Deploy:**\n   \`\`\`bash\n   wrangler deploy\n   \`\`\`\n\n**Configuration:**\n- Check \`wrangler.toml\` or \`wrangler.jsonc\`\n- Set secrets: \`wrangler secret put SECRET_NAME\`\n- View logs: \`wrangler tail\`" : ""}
+
+${ts.deployment.includes("Netlify") ? "\n**Netlify Deployment:**\n\n1. **Install Netlify CLI:**\n   \`\`\`bash\n   npm i -g netlify-cli\n   \`\`\`\n\n2. **Deploy:**\n   \`\`\`bash\n   netlify deploy\n   \`\`\`\n\n3. **Production:**\n   \`\`\`bash\n   netlify deploy --prod\n   \`\`\`" : ""}
+
+#### Environment Variables
+
+**Production secrets:**
+- Never commit secrets to Git
+- Use platform-specific secret management:
+  - Vercel: Dashboard → Settings → Environment Variables
+  - Netlify: Site settings → Build & deploy → Environment
+  - Docker: Pass via \`-e\` flag or env file
+  - Cloudflare: \`wrangler secret put\`
+
+**Required variables (check \`.env.example\`):**
+${repo.importantFiles.some((f) => f.path === ".env.example") ? "- See \`.env.example\` for the complete list\n- Copy to \`.env\` locally\n- Set in deployment platform for production" : "- Check the README or source code for required env vars"}
+
+#### Deployment Checklist
+
+Before deploying to production:
+- [ ] All tests passing
+- [ ] Environment variables configured
+- [ ] Database migrations run
+- [ ] Build succeeds locally
+- [ ] Security headers configured
+- [ ] Error monitoring set up (Sentry, etc.)
+- [ ] Performance monitoring enabled
+- [ ] Backup strategy in place
+
+#### Branch Strategy
+
+**Default branch:** \`${repo.defaultBranch}\`
+
+**Common workflows:**
+- \`main\`/\`master\` → Production
+- \`develop\` → Staging
+- \`feature/*\` → Feature branches
+- Pull requests trigger preview deployments
+
+> **Note:** Deployment configuration is inferred from detected files. Check project documentation for specific instructions.`;
   }
 
   if (q.includes("architect") || q.includes("structure") || q.includes("organi") || q.includes("flow")) {
-    return `### Architecture Overview
+    return `### Complete Architecture Analysis
 
 ${header}
 
-${repo.architecture.map((a) => `**${a.title}**\n${a.description}`).join("\n\n")}
+#### Architecture Patterns
 
-**Application flow**
+${repo.architecture.map((a) => `**${a.title}**\n\n${a.description}`).join("\n\n")}
+
+#### Application Data Flow
+
 ${repo.applicationFlow}
 
-**Top-level folders**
+**Detailed request/response cycle:**
+1. **User interaction** triggers an event (click, form submit, page load)
+2. **Client-side logic** processes the event (validation, state update)
+3. **API request** sent to backend (if needed)
+4. **Server receives** and routes to appropriate handler
+5. **Business logic executes** (authentication, data processing)
+6. **Database query** (if data persistence needed)
+7. **Response formatted** and sent back to client
+8. **UI updates** to reflect new state
+
+#### Project Structure & Organization
+
 ${fmtFolderList(repo.importantFolders)}
 
-> Heuristic answer — real AI integration is coming soon.`;
+**How folders relate:**
+${repo.importantFolders.some((f) => /components/i.test(f.path)) && repo.importantFolders.some((f) => /pages|routes/i.test(f.path)) ?
+"- **components/** provides reusable UI → **pages/** composes them into views\n" : ""}${repo.importantFolders.some((f) => /api|routes/i.test(f.path)) && repo.importantFolders.some((f) => /services/i.test(f.path)) ?
+"- **routes/** handles HTTP → **services/** contains business logic\n" : ""}${repo.importantFolders.some((f) => /models/i.test(f.path)) && repo.importantFolders.some((f) => /controllers/i.test(f.path)) ?
+"- **models/** defines data → **controllers/** orchestrates operations\n" : ""}${repo.importantFolders.some((f) => /lib|utils/i.test(f.path)) ?
+"- **lib/** or **utils/** provides shared helpers used everywhere\n" : ""}
+
+#### Design Principles Observed
+
+${repo.architecture.some((a) => /monorepo/i.test(a.title)) ? "**Monorepo architecture:**\n- Multiple packages share tooling and dependencies\n- Each workspace is independently deployable\n- Shared code lives in common packages\n\n" : ""}${repo.architecture.some((a) => /full-stack/i.test(a.title)) ? "**Full-stack integration:**\n- Frontend and backend in same repository\n- Shared types between client and server\n- Unified deployment pipeline\n\n" : ""}${repo.developerInsights.modularity.includes("modular") ? "**Modular design:**\n- Clear separation of concerns\n- Each module has a single responsibility\n- Easy to test and maintain independently\n\n" : ""}
+
+#### Entry Points by Use Case
+
+**For developers:**
+- Start at \`${repo.importantFiles.find((f) => /readme/i.test(f.path))?.path || "README.md"}\` for overview
+- Check \`${repo.importantFiles.find((f) => /package\.json|requirements\.txt|go\.mod/i.test(f.path))?.path || "package.json"}\` for dependencies
+- Open \`${repo.importantFiles.find((f) => /index|main|app|server/i.test(f.path))?.path || "src/index.ts"}\` to trace execution
+
+**For contributors:**
+- Read contribution guidelines (CONTRIBUTING.md if present)
+- Check issue templates in \`.github/\`
+- Review recent pull requests for code style
+
+**For users:**
+- Installation instructions in README
+- API documentation (if library/framework)
+- Example usage in \`examples/\` folder
+
+> **Note:** This analysis is based on detected patterns. Actual architecture may have additional nuances.`;
   }
 
   if (q.includes("file") || q.includes("config") || q.includes("important")) {
-    return `### Important Files
+    return `### Important Files & Configuration
 
 ${header}
+
+#### Critical Files Detected
 
 ${fmtFileList(repo.importantFiles)}
 
-> Heuristic answer — real AI integration is coming soon.`;
+#### File Categories Explained
+
+**Configuration files:**
+${repo.importantFiles.filter((f) => /config|\.json|\.toml|\.yaml|\.yml/i.test(f.path)).length ?
+repo.importantFiles.filter((f) => /config|\.json|\.toml|\.yaml|\.yml/i.test(f.path)).map((f) => `- \`${f.path}\` — ${f.why}`).join("\n") :
+"- No major config files detected at root"}
+
+**Entry points:**
+${repo.importantFiles.filter((f) => /index|main|app|server/i.test(f.path)).length ?
+repo.importantFiles.filter((f) => /index|main|app|server/i.test(f.path)).map((f) => `- \`${f.path}\` — ${f.why}`).join("\n") :
+"- Check \`src/\` folder for entry files"}
+
+**Build & tooling:**
+${repo.importantFiles.filter((f) => /vite|webpack|rollup|tsconfig|babel/i.test(f.path)).length ?
+repo.importantFiles.filter((f) => /vite|webpack|rollup|tsconfig|babel/i.test(f.path)).map((f) => `- \`${f.path}\` — ${f.why}`).join("\n") :
+"- Standard build configuration"}
+
+**Deployment:**
+${repo.importantFiles.filter((f) => /docker|vercel|netlify|wrangler/i.test(f.path)).length ?
+repo.importantFiles.filter((f) => /docker|vercel|netlify|wrangler/i.test(f.path)).map((f) => `- \`${f.path}\` — ${f.why}`).join("\n") :
+"- No deployment config at root"}
+
+#### What Each File Controls
+
+**Dependency management:**
+- Defines what external code the project needs
+- Locks versions for reproducible builds
+- Specifies scripts for common tasks (dev, build, test)
+
+**TypeScript configuration:**
+- Sets compiler strictness and target
+- Defines path aliases for imports
+- Controls type checking behavior
+
+**Build tool configuration:**
+- Configures bundling and optimization
+- Sets up dev server and HMR
+- Defines environment-specific builds
+
+**Deployment configuration:**
+- Specifies runtime environment
+- Sets build commands and output directory
+- Configures environment variables and secrets
+
+#### Files You Shouldn't Edit Directly
+
+- **Lock files** (\`package-lock.json\`, \`yarn.lock\`, \`bun.lockb\`) — Auto-generated
+- **Build output** (\`dist/\`, \`build/\`, \`.next/\`) — Generated by build process
+- **Generated types** (\`*.gen.ts\`, \`routeTree.gen.ts\`) — Auto-generated from source
+
+#### Files to Check When Things Break
+
+1. **Dependencies not installing?** → Check lock file and package manager version
+2. **Build failing?** → Check build tool config (vite.config, webpack.config)
+3. **Types not working?** → Check tsconfig.json paths and includes
+4. **Deploy failing?** → Check deployment config and environment variables
+
+> **Note:** Always read file comments and documentation before modifying configuration.`;
   }
 
   if (q.includes("license")) {
-    return `### License\n\n${header}\n\n${repo.license ? `Licensed under **${repo.license}**.` : "No license metadata exposed via the GitHub API — check the repo for a \`LICENSE\` file."}`;
+    return `### License & Usage Rights
+
+${header}
+
+#### License Information
+
+${repo.license ? `**Licensed under: ${repo.license}**
+
+**What this means:**
+${repo.license.includes("MIT") ? "- Commercial use allowed\n- Modification allowed\n- Distribution allowed\n- Private use allowed\n- Must include license and copyright notice\n- No liability or warranty" :
+repo.license.includes("Apache") ? "- Commercial use allowed\n- Modification allowed\n- Distribution allowed\n- Patent grant included\n- Must include license, copyright, and state changes\n- No liability or warranty" :
+repo.license.includes("GPL") ? "- Commercial use allowed\n- Modification allowed\n- Distribution allowed\n- Must disclose source code\n- Must use same license for derivatives\n- No liability or warranty" :
+repo.license.includes("BSD") ? "- Commercial use allowed\n- Modification allowed\n- Distribution allowed\n- Must include license and copyright notice\n- No liability or warranty" :
+"- Check the LICENSE file for specific terms"}
+
+**Common use cases:**
+- **Using as a dependency:** ${repo.license.includes("MIT") || repo.license.includes("Apache") || repo.license.includes("BSD") ? "Safe to use in commercial projects" : "Check license compatibility"}
+- **Forking and modifying:** ${repo.license.includes("GPL") ? "Must open-source your modifications" : "Allowed with attribution"}
+- **Redistributing:** ${repo.license ? "Allowed with proper attribution" : "No license = no permission"}` :
+"**No license detected**\n\n**Important:** Without a license, the code is under exclusive copyright by default. This means:\n- You cannot use it commercially\n- You cannot modify it\n- You cannot distribute it\n- You cannot fork it\n\n**What to do:**\n1. Check for a LICENSE file in the repository\n2. Contact the repository owner for clarification\n3. Request they add an open-source license\n4. Consider using a different project with a clear license"}
+
+#### Attribution Requirements
+
+${repo.license ? `When using this project, you should:
+1. Include a copy of the LICENSE file
+2. Preserve copyright notices
+3. State any modifications you made
+4. Link back to the original repository: ${repo.url}` : "Without a license, you cannot legally use this code."}
+
+#### Contributing
+
+${repo.license ? `By contributing to this project, you agree to license your contributions under the same ${repo.license} license.` : "Check with the maintainer about contribution terms."}
+
+**Before contributing:**
+- Read CONTRIBUTING.md (if present)
+- Check for a Contributor License Agreement (CLA)
+- Ensure your contributions are your own work
+
+> **Disclaimer:** This is not legal advice. Consult a lawyer for specific legal questions.`;
   }
 
   if (q.includes("scale") || q.includes("size") || q.includes("popular") || q.includes("active")) {
-    return `### Project Health
+    return `### Project Health & Maturity
 
 ${header}
 
-- **Scale** — ${repo.developerInsights.scale}
-- **Maintainability** — ${repo.developerInsights.maintainability}
-- **Modularity** — ${repo.developerInsights.modularity}
-- **Collaboration** — ${repo.developerInsights.collaboration}
-- **Activity** — ${repo.developerInsights.activity}
+#### Community Metrics
 
-> Heuristic answer — real AI integration is coming soon.`;
+- **Stars:** ${repo.stars.toLocaleString()}
+- **Forks:** ${repo.forks.toLocaleString()}
+- **Open Issues:** ${repo.issues.toLocaleString()}
+- **Created:** ${new Date(repo.createdAt).toLocaleDateString()}
+- **Last Updated:** ${new Date(repo.pushedAt).toLocaleDateString()}
+
+#### Developer Insights
+
+**Project Scale**
+${repo.developerInsights.scale}
+
+${repo.stars > 10000 ? "**Implications:**\n- Battle-tested in production\n- Large community for support\n- Extensive documentation likely\n- Breaking changes are rare and well-communicated" :
+repo.stars > 1000 ? "**Implications:**\n- Proven in real-world use\n- Active community\n- Good documentation\n- Regular updates and bug fixes" :
+repo.stars > 100 ? "**Implications:**\n- Early adopters using it\n- Growing community\n- Documentation may be incomplete\n- API may still evolve" :
+"**Implications:**\n- Experimental or personal project\n- Limited community support\n- Use with caution in production\n- May be abandoned"}
+
+**Maintainability**
+${repo.developerInsights.maintainability}
+
+${repo.developerInsights.maintainability.includes("Strong") ? "**What this means:**\n- Easy to understand and modify\n- Low risk of introducing bugs\n- Good for learning and contributing\n- Scales well as project grows" :
+repo.developerInsights.maintainability.includes("Decent") ? "**What this means:**\n- Reasonably maintainable\n- Some technical debt may exist\n- Contributions require care\n- Consider adding tests or types" :
+"**What this means:**\n- May be hard to modify safely\n- Higher risk of bugs\n- Contributions need extra review\n- Consider refactoring before major changes"}
+
+**Code Organization**
+${repo.developerInsights.modularity}
+
+**Collaboration Style**
+${repo.developerInsights.collaboration}
+
+${repo.developerInsights.collaboration.includes("community") ? "**How to engage:**\n- Check open issues for good first issues\n- Read contribution guidelines\n- Join discussions in issues/PRs\n- Follow the code of conduct" :
+"**How to engage:**\n- Open an issue before major changes\n- Coordinate directly with maintainers\n- Keep PRs focused and small\n- Be patient with review times"}
+
+**Development Activity**
+${repo.developerInsights.activity}
+
+${repo.developerInsights.activity.includes("Active") ? "**What to expect:**\n- Quick response to issues\n- Regular updates and releases\n- Active maintenance and bug fixes\n- Safe to depend on" :
+repo.developerInsights.activity.includes("Recently") ? "**What to expect:**\n- Slower response times\n- Occasional updates\n- May need to fork for urgent fixes\n- Evaluate alternatives" :
+"**What to expect:**\n- Project may be abandoned\n- No support for issues\n- Consider forking or finding alternatives\n- Use only if you can maintain it yourself"}
+
+#### Should You Use This Project?
+
+**Good fit if:**
+${repo.stars > 1000 ? "- You need a proven, stable solution\n" : ""}${repo.developerInsights.maintainability.includes("Strong") ? "- You may need to customize or extend it\n" : ""}${repo.developerInsights.activity.includes("Active") ? "- You need ongoing support and updates\n" : ""}${ts.testing.length > 0 ? "- You value code quality and testing\n" : ""}
+
+**Consider alternatives if:**
+${repo.stars < 100 ? "- You need production-grade stability\n" : ""}${repo.developerInsights.activity.includes("inactive") ? "- You need active maintenance\n" : ""}${!ts.testing.length ? "- You require comprehensive test coverage\n" : ""}${!repo.license ? "- You need clear licensing terms\n" : ""}
+
+> **Note:** These insights are based on repository metadata and structure. Always evaluate the actual code quality and fit for your use case.`;
   }
 
   // Generic structured fallback
-  return `### Working hypothesis
+  return `### Repository Analysis
 
 ${header}
 
-I don't have a specific match for _"${question.replace(/\?$/, "")}"_, but here's where the answer most likely lives based on the repo structure:
+I don't have a specific answer for _"${question.replace(/\?$/, "")}"_, but here's a comprehensive overview to help you find what you need:
 
-**Top-level folders**
-${fmtFolderList(repo.importantFolders.slice(0, 5))}
+#### Project Structure
 
-**Detected stack**
-- Languages: ${ts.languages.join(", ") || "n/a"}
-- Frontend: ${ts.frontend.join(", ") || "n/a"}
-- Backend: ${ts.backend.join(", ") || "n/a"}
+**Top-level organization:**
+${fmtFolderList(repo.importantFolders.slice(0, 6))}
 
-**Suggested next step**
-1. Open the README for project intent.
-2. Open \`package.json\` (or equivalent manifest) to see scripts.
-3. Search the repo for keywords from your question.
+**Key files:**
+${repo.importantFiles.slice(0, 5).map((f) => `- \`${f.path}\` — ${f.why}`).join("\n")}
 
-> Heuristic answer — real AI integration is coming soon.`;
+#### Technology Stack
+
+**Languages:** ${ts.languages.join(", ") || "Not detected"}
+**Frontend:** ${ts.frontend.join(", ") || "None detected"}
+**Backend:** ${ts.backend.join(", ") || "None detected"}
+**Build Tools:** ${ts.buildTools.slice(0, 3).join(", ") || "Standard tooling"}
+
+#### Architecture Summary
+
+${repo.architecture[0] ? `**${repo.architecture[0].title}**\n${repo.architecture[0].description}` : "Standard project layout"}
+
+#### How to Find Your Answer
+
+1. **Search the codebase:**
+   \`\`\`bash
+   # Search for keywords from your question
+   grep -r "your-keyword" src/
+   \`\`\`
+
+2. **Check documentation:**
+   - README.md for overview
+   - docs/ folder for detailed guides
+   - Code comments for implementation details
+
+3. **Explore related files:**
+   - Look in folders matching your question topic
+   - Check imports/exports to trace dependencies
+   - Review tests for usage examples
+
+4. **Ask more specific questions:**
+   Try asking about:
+   - "frontend architecture"
+   - "backend API structure"
+   - "authentication flow"
+   - "deployment process"
+   - "testing strategy"
+
+#### Quick Navigation
+
+- **Getting started:** ${repo.beginnerGuide[0] || "Check README.md"}
+- **Main entry point:** ${repo.importantFiles.find((f) => /index|main|app/i.test(f.path))?.path || "src/index.ts"}
+- **Configuration:** ${repo.importantFiles.find((f) => /config|\.json/i.test(f.path))?.path || "package.json"}
+
+> **Tip:** For better answers, try asking more specific questions about particular aspects of the repository (architecture, tech stack, deployment, etc.).`;
 }
