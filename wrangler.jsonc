@@ -3,5 +3,11 @@
   "name": "repomind",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts"
+  "main": "src/server.ts",
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+  // Note: GITHUB_TOKEN should be set as a secret in Cloudflare dashboard
+  // or via: wrangler secret put GITHUB_TOKEN
+  // Environment variables set in Cloudflare dashboard will be automatically available
 }

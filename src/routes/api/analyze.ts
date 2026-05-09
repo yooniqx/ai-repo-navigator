@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { parseRepoUrl } from "@/lib/repo";
 import { analyzeRepository } from "@/lib/analyze.server";
 import { checkDistributedRateLimit } from "@/lib/rate-limiter";
+import { setGitHubEnv } from "@/lib/github.server";
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -39,6 +40,13 @@ export const Route = createFileRoute("/api/analyze")({
     handlers: {
       POST: async ({ request, context }) => {
         try {
+          // Set GitHub environment context for authenticated requests
+          // Access Cloudflare env variables through context
+          const env = (context as { cloudflare?: { env?: { GITHUB_TOKEN?: string } } })?.cloudflare?.env;
+          if (env) {
+            setGitHubEnv(env);
+          }
+          
           // Check payload size
           const contentLength = request.headers.get("content-length");
           if (contentLength && parseInt(contentLength) > MAX_PAYLOAD_SIZE) {
