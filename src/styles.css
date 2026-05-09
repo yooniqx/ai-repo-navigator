@@ -78,12 +78,16 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 80px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    letter-spacing: -0.01em;
   }
 
   body {
@@ -92,7 +96,68 @@
       radial-gradient(ellipse 60% 40% at 80% 100%, oklch(0.7 0.15 180 / 8%), transparent);
     background-attachment: fixed;
     min-height: 100vh;
+    position: relative;
   }
+
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.35;
+    will-change: transform;
+  }
+  body::before {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, oklch(0.78 0.18 155 / 30%), transparent 70%);
+    animation: float-slow 18s ease-in-out infinite;
+  }
+  body::after {
+    bottom: -15%;
+    right: -10%;
+    width: 55vw;
+    height: 55vw;
+    background: radial-gradient(circle, oklch(0.7 0.15 180 / 22%), transparent 70%);
+    animation: float-slow 22s ease-in-out infinite reverse;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  p { line-height: 1.65; }
+
+  /* Custom scrollbar — dark green glass aesthetic */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.78 0.18 155 / 35%) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, oklch(0.78 0.18 155 / 30%), oklch(0.7 0.15 180 / 30%));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background 0.3s ease;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, oklch(0.78 0.18 155 / 65%), oklch(0.7 0.15 180 / 65%));
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+  *::-webkit-scrollbar-corner { background: transparent; }
 }
 
 @layer utilities {
