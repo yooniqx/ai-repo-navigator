@@ -44,7 +44,10 @@ export const Route = createFileRoute("/api/analyze")({
           // Access Cloudflare env variables through context
           const env = (context as unknown as { cloudflare?: { env?: { GITHUB_TOKEN?: string } } })?.cloudflare?.env;
           if (env) {
+            console.log("[Analyze API] Cloudflare env context found, setting GitHub env");
             setGitHubEnv(env);
+          } else {
+            console.warn("[Analyze API] No Cloudflare env context found in request");
           }
           
           // Check payload size

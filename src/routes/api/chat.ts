@@ -47,7 +47,10 @@ export const Route = createFileRoute("/api/chat")({
           // Access Cloudflare env variables through context
           const env = (context as unknown as { cloudflare?: { env?: { GITHUB_TOKEN?: string } } })?.cloudflare?.env;
           if (env) {
+            console.log("[Chat API] Cloudflare env context found, setting GitHub env");
             setGitHubEnv(env);
+          } else {
+            console.warn("[Chat API] No Cloudflare env context found in request");
           }
           
           // Check payload size

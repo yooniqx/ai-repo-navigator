@@ -29,6 +29,9 @@ const headers = (): Record<string, string> => {
   
   if (token) {
     h.Authorization = `Bearer ${token}`;
+    console.log("[GitHub API] Using authenticated requests (token detected)");
+  } else {
+    console.warn("[GitHub API] No token found - using unauthenticated requests (60 req/hour limit)");
   }
   
   return h;
