@@ -295,9 +295,33 @@ function Dashboard() {
               </AnalysisCard>
 
               <AnalysisCard
+                title="Repository Health"
+                subtitle="Quality · structure · complexity"
+                delay={360}
+                expandable
+                icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>}
+              >
+                <dl className="space-y-3">
+                  {([
+                    ["Documentation Quality", data.repositoryHealth.documentationQuality],
+                    ["Project Structure", data.repositoryHealth.projectStructure],
+                    ["Maintainability Score", data.repositoryHealth.maintainabilityScore],
+                    ["Onboarding Difficulty", data.repositoryHealth.onboardingDifficulty],
+                    ["Dependency Complexity", data.repositoryHealth.dependencyComplexity],
+                    ["Code Organization", data.repositoryHealth.codeOrganization],
+                  ] as const).map(([k, v]) => (
+                    <div key={k}>
+                      <dt className="text-[11px] font-mono uppercase tracking-wider text-primary/80">{k}</dt>
+                      <dd className="text-foreground/90 mt-0.5">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </AnalysisCard>
+
+              <AnalysisCard
                 title="Ask RepoMind"
                 subtitle="Chat with the repository"
-                delay={380}
+                delay={400}
                 className="lg:col-span-2"
                 icon={<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
               >

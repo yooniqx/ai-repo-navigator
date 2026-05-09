@@ -31,6 +31,15 @@ export interface DeveloperInsights {
   activity: string;
 }
 
+export interface RepositoryHealth {
+  documentationQuality: string;
+  projectStructure: string;
+  maintainabilityScore: string;
+  onboardingDifficulty: string;
+  dependencyComplexity: string;
+  codeOrganization: string;
+}
+
 export interface AnalyzeResult {
   owner: string;
   name: string;
@@ -54,6 +63,7 @@ export interface AnalyzeResult {
   technologies: string[];
   techStack: TechStack;
   developerInsights: DeveloperInsights;
+  repositoryHealth: RepositoryHealth;
   readmeExcerpt: string;
 }
 
@@ -503,6 +513,131 @@ function readmeExcerpt(readme: string): string {
   return readme.split("\n").slice(0, 30).join("\n").slice(0, 1200);
 }
 
+function buildRepositoryHealth(
+  repo: GhRepo,
+  readme: string,
+  files: GhTreeEntry[],
+  techStack: TechStack,
+  langs: Record<string, number>
+): RepositoryHealth {
+  const fileNames = new Set(files.map((f) => lc(f.path)));
+  const folderCount = files.filter((f) => f.type === "tree").length;
+  const fileCount = files.filter((f) => f.type === "blob").length;
+  const hasReadme = readme.length > 100;
+  const readmeLength = readme.length;
+
+  // Documentation Quality
+  const hasDocs = fileNames.has("docs") || files.some((f) => f.path.toLowerCase().startsWith("docs/"));
+  const hasContributing = fileNames.has("contributing.md") || fileNames.has(".github/contributing.md");
+  const hasChangelog = fileNames.has("changelog.md") || fileNames.has("history.md");
+  const hasExamples = fileNames.has("examples") || files.some((f) => f.path.toLowerCase().startsWith("examples/"));
+  
+  const documentationQuality =
+    hasReadme && readmeLength > 2000 && hasDocs && hasExamples
+      ? "Excellent — comprehensive README, dedicated docs folder, and examples"
+      : hasReadme && readmeLength > 1000 && (hasDocs || hasExamples)
+        ? "Good — detailed README with additional documentation or examples"
+        : hasReadme && readmeLength > 500
+          ? "Adequate — README covers basics but could be more detailed"
+          : hasReadme
+            ? "Minimal — README exists but lacks depth"
+            : "Poor — no README or very sparse documentation";
+
+  // Project Structure Quality
+  const hasStandardFolders = ["src", "lib", "app"].some((f) => fileNames.has(f));
+  const hasTests = techStack.testing.length > 0 || ["tests", "test", "__tests__"].some((f) => fileNames.has(f));
+  const hasConfig = fileNames.has("config") || files.some((f) => /config\.(ts|js|json)/.test(f.path));
+  const wellOrganized = folderCount >= 4 && folderCount <= 15;
+  
+  const projectStructure =
+    hasStandardFolders && hasTests && wellOrganized
+      ? "Well-organized — clear separation of concerns with standard conventions"
+      : hasStandardFolders && wellOrganized
+        ? "Good — follows common patterns with logical folder structure"
+        : folderCount > 15
+          ? "Complex — many folders may indicate over-engineering or monorepo"
+          : folderCount < 3
+            ? "Flat — minimal folder structure, may be hard to navigate as it grows"
+            : "Standard — basic organization, room for improvement";
+
+  // Maintainability Score
+  const hasTypes = techStack.buildTools.includes("TypeScript") || techStack.languages.includes("TypeScript");
+  const hasLinter = fileNames.has("eslint.config.js") || fileNames.has(".eslintrc.json") || fileNames.has(".eslintrc");
+  const hasFormatter = fileNames.has("prettier.config.js") || fileNames.has(".prettierrc");
+  const hasCI = fileNames.has(".github") || fileNames.has(".gitlab-ci.yml") || fileNames.has(".circleci");
+  
+  const maintainabilityScore =
+    hasTypes && hasTests && hasLinter && hasCI
+      ? "High — typed, tested, linted, with automated CI"
+      : hasTypes && hasTests
+        ? "Good — type safety and tests provide solid foundation"
+        : hasTests || hasTypes
+          ? "Moderate — some quality measures in place"
+          : hasLinter
+            ? "Basic — linting helps but lacks tests or types"
+            : "Low — minimal quality tooling detected";
+
+  // Onboarding Difficulty
+  const hasEnvExample = fileNames.has(".env.example") || fileNames.has("env.example");
+  const hasSetupDocs = readme.toLowerCase().includes("install") || readme.toLowerCase().includes("setup");
+  const complexDeps = Object.keys(langs).length > 3;
+  const hasDocker = fileNames.has("dockerfile") || fileNames.has("docker-compose.yml");
+  
+  const onboardingDifficulty =
+    hasReadme && hasSetupDocs && hasEnvExample && !complexDeps
+      ? "Easy — clear setup instructions and simple dependencies"
+      : hasReadme && hasSetupDocs
+        ? "Moderate — documentation exists but may require some figuring out"
+        : hasReadme && !complexDeps
+          ? "Moderate — basic README but setup steps could be clearer"
+          : complexDeps || !hasReadme
+            ? "Challenging — complex stack or sparse documentation"
+            : "Difficult — minimal guidance for new contributors";
+
+  // Dependency Complexity
+  const depFiles = ["package.json", "requirements.txt", "go.mod", "cargo.toml", "pom.xml", "build.gradle"];
+  const hasDeps = depFiles.some((f) => fileNames.has(f));
+  const hasLockFile = fileNames.has("package-lock.json") || fileNames.has("yarn.lock") || fileNames.has("bun.lockb") || fileNames.has("pnpm-lock.yaml");
+  const multiLanguage = Object.keys(langs).length > 2;
+  const hasMonorepo = fileNames.has("packages") || fileNames.has("apps") || fileNames.has("turbo.json") || fileNames.has("nx.json");
+  
+  const dependencyComplexity =
+    hasMonorepo
+      ? "High — monorepo with multiple packages and shared dependencies"
+      : multiLanguage && hasDeps
+        ? "Moderate-High — multiple languages with different package managers"
+        : hasDeps && hasLockFile
+          ? "Standard — typical dependency setup with lock file"
+          : hasDeps
+            ? "Moderate — dependencies present but no lock file (reproducibility risk)"
+            : "Low — minimal or no external dependencies";
+
+  // Code Organization
+  const hasModules = folderCount >= 5;
+  const hasClearSeparation = files.some((f) => /components|services|utils|lib|helpers/i.test(f.path));
+  const hasLayering = files.some((f) => /controllers|models|views|routes/i.test(f.path));
+  
+  const codeOrganization =
+    hasModules && hasClearSeparation && hasLayering
+      ? "Excellent — modular design with clear architectural layers"
+      : hasModules && hasClearSeparation
+        ? "Good — well-separated concerns with logical grouping"
+        : hasModules
+          ? "Adequate — multiple modules but separation could be clearer"
+          : folderCount <= 2
+            ? "Flat — most code at root level, harder to navigate"
+            : "Basic — minimal organization, suitable for small projects";
+
+  return {
+    documentationQuality,
+    projectStructure,
+    maintainabilityScore,
+    onboardingDifficulty,
+    dependencyComplexity,
+    codeOrganization,
+  };
+}
+
 export async function analyzeRepository(owner: string, name: string, url: string): Promise<AnalyzeResult> {
   const repo = await fetchRepo(owner, name);
   const [langs, readme, files] = await Promise.all([
@@ -536,6 +671,7 @@ export async function analyzeRepository(owner: string, name: string, url: string
     technologies: buildTechnologiesFlat(techStack, repo),
     techStack,
     developerInsights: buildDeveloperInsights(repo, files, techStack),
+    repositoryHealth: buildRepositoryHealth(repo, readme, files, techStack, langs),
     readmeExcerpt: readmeExcerpt(readme),
   };
 }
@@ -1285,7 +1421,7 @@ ${repo.license ? `By contributing to this project, you agree to license your con
 > **Disclaimer:** This is not legal advice. Consult a lawyer for specific legal questions.`;
   }
 
-  if (q.includes("scale") || q.includes("size") || q.includes("popular") || q.includes("active")) {
+  if (q.includes("scale") || q.includes("size") || q.includes("popular") || q.includes("active") || q.includes("health") || q.includes("quality")) {
     return `### Project Health & Maturity
 
 ${header}
@@ -1297,6 +1433,26 @@ ${header}
 - **Open Issues:** ${repo.issues.toLocaleString()}
 - **Created:** ${new Date(repo.createdAt).toLocaleDateString()}
 - **Last Updated:** ${new Date(repo.pushedAt).toLocaleDateString()}
+
+#### Repository Health Assessment
+
+**Documentation Quality**
+${repo.repositoryHealth.documentationQuality}
+
+**Project Structure**
+${repo.repositoryHealth.projectStructure}
+
+**Maintainability Score**
+${repo.repositoryHealth.maintainabilityScore}
+
+**Onboarding Difficulty**
+${repo.repositoryHealth.onboardingDifficulty}
+
+**Dependency Complexity**
+${repo.repositoryHealth.dependencyComplexity}
+
+**Code Organization**
+${repo.repositoryHealth.codeOrganization}
 
 #### Developer Insights
 
