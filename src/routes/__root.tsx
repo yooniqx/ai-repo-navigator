@@ -105,6 +105,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/fba28c44-d2b1-4071-b27d-b25a694cf381",
       },
+      { name: "description", content: "RepoMind is a web app that uses AI to help developers quickly understand GitHub repositories." },
+      { property: "og:description", content: "RepoMind is a web app that uses AI to help developers quickly understand GitHub repositories." },
+      { name: "twitter:description", content: "RepoMind is a web app that uses AI to help developers quickly understand GitHub repositories." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e1cb55e7-2d17-4b22-bfd2-15f370f0a1a8/id-preview-8765515c--d0680a0b-a054-4de0-9f75-2514bdb4c0be.lovable.app-1778310655901.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e1cb55e7-2d17-4b22-bfd2-15f370f0a1a8/id-preview-8765515c--d0680a0b-a054-4de0-9f75-2514bdb4c0be.lovable.app-1778310655901.png" },
     ],
     links: [
       {
