@@ -2,18 +2,18 @@
 // Lightweight: pure CSS animations, no JS loops, runs behind everything.
 
 const SYMBOLS = [
-  { c: "{ }",      x: "6%",  y: "12%", size: 56, dur: 26, delay: 0,  drift: "a" },
-  { c: "</>",      x: "88%", y: "18%", size: 44, dur: 32, delay: 4,  drift: "b" },
-  { c: "$_",       x: "14%", y: "78%", size: 38, dur: 28, delay: 2,  drift: "c" },
-  { c: "[ ]",      x: "78%", y: "70%", size: 50, dur: 30, delay: 6,  drift: "a" },
-  { c: "( )",      x: "46%", y: "88%", size: 40, dur: 34, delay: 1,  drift: "b" },
-  { c: "//",       x: "30%", y: "30%", size: 36, dur: 24, delay: 3,  drift: "c" },
-  { c: "★",        x: "62%", y: "8%",  size: 28, dur: 22, delay: 5,  drift: "a" },
-  { c: "⌥",        x: "92%", y: "50%", size: 32, dur: 30, delay: 7,  drift: "b" },
-  { c: ">_",       x: "4%",  y: "44%", size: 42, dur: 28, delay: 2,  drift: "c" },
-  { c: "git",      x: "70%", y: "36%", size: 24, dur: 36, delay: 4,  drift: "a" },
-  { c: "λ",        x: "22%", y: "58%", size: 46, dur: 26, delay: 6,  drift: "b" },
-  { c: "•",        x: "55%", y: "55%", size: 18, dur: 20, delay: 0,  drift: "c" },
+  { c: "{ }", x: "6%", y: "12%", size: 56, dur: 26, delay: 0, drift: "a" },
+  { c: "</>", x: "88%", y: "18%", size: 44, dur: 32, delay: 4, drift: "b" },
+  { c: "$_", x: "14%", y: "78%", size: 38, dur: 28, delay: 2, drift: "c" },
+  { c: "[ ]", x: "78%", y: "70%", size: 50, dur: 30, delay: 6, drift: "a" },
+  { c: "( )", x: "46%", y: "88%", size: 40, dur: 34, delay: 1, drift: "b" },
+  { c: "//", x: "30%", y: "30%", size: 36, dur: 24, delay: 3, drift: "c" },
+  { c: "★", x: "62%", y: "8%", size: 28, dur: 22, delay: 5, drift: "a" },
+  { c: "⌥", x: "92%", y: "50%", size: 32, dur: 30, delay: 7, drift: "b" },
+  { c: ">_", x: "4%", y: "44%", size: 42, dur: 28, delay: 2, drift: "c" },
+  { c: "git", x: "70%", y: "36%", size: 24, dur: 36, delay: 4, drift: "a" },
+  { c: "λ", x: "22%", y: "58%", size: 46, dur: 26, delay: 6, drift: "b" },
+  { c: "•", x: "55%", y: "55%", size: 18, dur: 20, delay: 0, drift: "c" },
 ];
 
 function FolderIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -33,7 +33,17 @@ function FileIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function NodeDot({ x, y, size = 6, delay = 0 }: { x: string; y: string; size?: number; delay?: number }) {
+function NodeDot({
+  x,
+  y,
+  size = 6,
+  delay = 0,
+}: {
+  x: string;
+  y: string;
+  size?: number;
+  delay?: number;
+}) {
   return (
     <span
       className="absolute rounded-full bg-primary/70 animate-node-pulse"
@@ -88,10 +98,22 @@ export function AnimatedBackground() {
       <NodeDot x="10%" y="86%" size={6} delay={4} />
 
       {/* Folder & file icons */}
-      <FolderIcon className="absolute text-primary/25 h-12 w-12 animate-drift-a" style={{ left: "8%", top: "32%", animationDelay: "1s" }} />
-      <FileIcon   className="absolute text-primary/20 h-10 w-10 animate-drift-b" style={{ left: "82%", top: "60%", animationDelay: "3s" }} />
-      <FolderIcon className="absolute text-primary/15 h-9 w-9  animate-drift-c" style={{ left: "60%", top: "20%", animationDelay: "5s" }} />
-      <FileIcon   className="absolute text-primary/20 h-8 w-8  animate-drift-a" style={{ left: "36%", top: "76%", animationDelay: "2s" }} />
+      <FolderIcon
+        className="absolute text-primary/25 h-12 w-12 animate-drift-a"
+        style={{ left: "8%", top: "32%", animationDelay: "1s" }}
+      />
+      <FileIcon
+        className="absolute text-primary/20 h-10 w-10 animate-drift-b"
+        style={{ left: "82%", top: "60%", animationDelay: "3s" }}
+      />
+      <FolderIcon
+        className="absolute text-primary/15 h-9 w-9  animate-drift-c"
+        style={{ left: "60%", top: "20%", animationDelay: "5s" }}
+      />
+      <FileIcon
+        className="absolute text-primary/20 h-8 w-8  animate-drift-a"
+        style={{ left: "36%", top: "76%", animationDelay: "2s" }}
+      />
 
       {/* Floating dev symbols */}
       {SYMBOLS.map((s, i) => (

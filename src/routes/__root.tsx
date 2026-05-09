@@ -74,17 +74,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "RepoMind" },
-      { name: "description", content: "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly." },
+      {
+        name: "description",
+        content:
+          "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "RepoMind" },
-      { property: "og:description", content: "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly." },
+      {
+        property: "og:description",
+        content:
+          "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "RepoMind" },
-      { name: "twitter:description", content: "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/fba28c44-d2b1-4071-b27d-b25a694cf381" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/fba28c44-d2b1-4071-b27d-b25a694cf381" },
+      {
+        name: "twitter:description",
+        content:
+          "AI-powered app that analysis platform and helps developers understand architecture, onboarding flow, technologies, and project structure instantly.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/fba28c44-d2b1-4071-b27d-b25a694cf381",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/fba28c44-d2b1-4071-b27d-b25a694cf381",
+      },
     ],
     links: [
       {

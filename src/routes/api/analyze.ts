@@ -11,18 +11,22 @@ const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
 const MAX_PAYLOAD_SIZE = 1024 * 1024;
 
 function getClientIP(request: Request): string {
-  return request.headers.get("cf-connecting-ip") ||
-         request.headers.get("x-forwarded-for")?.split(",")[0] ||
-         "unknown";
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    "unknown"
+  );
 }
 
 function sanitizeError(error: unknown): string {
   // Never expose raw error messages to clients
   if (error instanceof Error) {
     // Only expose safe, expected error types
-    if (error.message.includes("rate limit") ||
-        error.message.includes("not found") ||
-        error.message.includes("Invalid")) {
+    if (
+      error.message.includes("rate limit") ||
+      error.message.includes("not found") ||
+      error.message.includes("Invalid")
+    ) {
       return error.message;
     }
   }
@@ -40,7 +44,7 @@ export const Route = createFileRoute("/api/analyze")({
           if (contentLength && parseInt(contentLength) > MAX_PAYLOAD_SIZE) {
             return Response.json(
               { error: "Request payload too large. Maximum size is 1MB." },
-              { status: 413 }
+              { status: 413 },
             );
           }
 
@@ -52,9 +56,9 @@ export const Route = createFileRoute("/api/analyze")({
             env,
             clientIP,
             RATE_LIMIT_MAX_REQUESTS,
-            RATE_LIMIT_WINDOW
+            RATE_LIMIT_WINDOW,
           );
-          
+
           if (!rateLimit.allowed) {
             return Response.json(
               { error: "Rate limit exceeded. Please try again later." },
@@ -66,8 +70,8 @@ export const Route = createFileRoute("/api/analyze")({
                   "X-RateLimit-Reset": rateLimit.resetAt
                     ? new Date(rateLimit.resetAt).toISOString()
                     : new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
-                }
-              }
+                },
+              },
             );
           }
 
@@ -76,7 +80,7 @@ export const Route = createFileRoute("/api/analyze")({
           if (body.length > MAX_PAYLOAD_SIZE) {
             return Response.json(
               { error: "Request payload too large. Maximum size is 1MB." },
-              { status: 413 }
+              { status: 413 },
             );
           }
 
@@ -84,51 +88,36 @@ export const Route = createFileRoute("/api/analyze")({
           try {
             parsedBody = JSON.parse(body);
           } catch {
-            return Response.json(
-              { error: "Invalid JSON in request body" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid JSON in request body" }, { status: 400 });
           }
 
           const { url } = parsedBody;
-          
+
           if (!url) {
-            return Response.json(
-              { error: "Missing repository URL" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Missing repository URL" }, { status: 400 });
           }
 
           // Validate URL length
           if (typeof url !== "string" || url.length > 500) {
-            return Response.json(
-              { error: "Invalid repository URL format" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid repository URL format" }, { status: 400 });
           }
 
           const parsed = parseRepoUrl(url);
           if (!parsed) {
-            return Response.json(
-              { error: "Invalid GitHub repository URL" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid GitHub repository URL" }, { status: 400 });
           }
 
           const result = await analyzeRepository(parsed.owner, parsed.name, url);
-          
+
           return Response.json(result, {
             headers: {
               "X-RateLimit-Limit": RATE_LIMIT_MAX_REQUESTS.toString(),
               "X-RateLimit-Remaining": rateLimit.remaining.toString(),
-            }
+            },
           });
         } catch (e) {
           console.error("Analysis error:", e); // Log for debugging
-          return Response.json(
-            { error: sanitizeError(e) },
-            { status: 500 }
-          );
+          return Response.json({ error: sanitizeError(e) }, { status: 500 });
         }
       },
     },

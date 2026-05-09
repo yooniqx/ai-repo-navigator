@@ -38,8 +38,10 @@ export interface GhTreeEntry {
 
 export async function fetchRepo(owner: string, name: string): Promise<GhRepo> {
   const r = await fetch(`${GH}/repos/${owner}/${name}`, { headers: headers() });
-  if (r.status === 404) throw new Error("Repository not found. Make sure the URL points to a public GitHub repo.");
-  if (r.status === 403) throw new Error("GitHub API rate limit reached. Please try again in a minute.");
+  if (r.status === 404)
+    throw new Error("Repository not found. Make sure the URL points to a public GitHub repo.");
+  if (r.status === 403)
+    throw new Error("GitHub API rate limit reached. Please try again in a minute.");
   if (!r.ok) throw new Error(`GitHub API error (${r.status})`);
   return (await r.json()) as GhRepo;
 }
@@ -58,10 +60,17 @@ export async function fetchReadme(owner: string, name: string): Promise<string> 
   return await r.text();
 }
 
-export async function fetchTopLevel(owner: string, name: string, branch: string): Promise<GhTreeEntry[]> {
-  const r = await fetch(`${GH}/repos/${owner}/${name}/contents/?ref=${encodeURIComponent(branch)}`, {
-    headers: headers(),
-  });
+export async function fetchTopLevel(
+  owner: string,
+  name: string,
+  branch: string,
+): Promise<GhTreeEntry[]> {
+  const r = await fetch(
+    `${GH}/repos/${owner}/${name}/contents/?ref=${encodeURIComponent(branch)}`,
+    {
+      headers: headers(),
+    },
+  );
   if (!r.ok) return [];
   const items = (await r.json()) as Array<{ path: string; type: string }>;
   return items.map((i) => ({ path: i.path, type: i.type === "dir" ? "tree" : "blob" }));

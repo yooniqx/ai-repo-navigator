@@ -14,18 +14,22 @@ const MAX_PAYLOAD_SIZE = 1024 * 1024;
 const MAX_MESSAGE_LENGTH = 1000;
 
 function getClientIP(request: Request): string {
-  return request.headers.get("cf-connecting-ip") ||
-         request.headers.get("x-forwarded-for")?.split(",")[0] ||
-         "unknown";
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    "unknown"
+  );
 }
 
 function sanitizeError(error: unknown): string {
   // Never expose raw error messages to clients
   if (error instanceof Error) {
     // Only expose safe, expected error types
-    if (error.message.includes("rate limit") ||
-        error.message.includes("not found") ||
-        error.message.includes("Invalid")) {
+    if (
+      error.message.includes("rate limit") ||
+      error.message.includes("not found") ||
+      error.message.includes("Invalid")
+    ) {
       return error.message;
     }
   }
@@ -43,7 +47,7 @@ export const Route = createFileRoute("/api/chat")({
           if (contentLength && parseInt(contentLength) > MAX_PAYLOAD_SIZE) {
             return Response.json(
               { error: "Request payload too large. Maximum size is 1MB." },
-              { status: 413 }
+              { status: 413 },
             );
           }
 
@@ -55,9 +59,9 @@ export const Route = createFileRoute("/api/chat")({
             env,
             clientIP,
             RATE_LIMIT_MAX_REQUESTS,
-            RATE_LIMIT_WINDOW
+            RATE_LIMIT_WINDOW,
           );
-          
+
           if (!rateLimit.allowed) {
             return Response.json(
               { error: "Rate limit exceeded. Please try again later." },
@@ -69,8 +73,8 @@ export const Route = createFileRoute("/api/chat")({
                   "X-RateLimit-Reset": rateLimit.resetAt
                     ? new Date(rateLimit.resetAt).toISOString()
                     : new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
-                }
-              }
+                },
+              },
             );
           }
 
@@ -79,7 +83,7 @@ export const Route = createFileRoute("/api/chat")({
           if (body.length > MAX_PAYLOAD_SIZE) {
             return Response.json(
               { error: "Request payload too large. Maximum size is 1MB." },
-              { status: 413 }
+              { status: 413 },
             );
           }
 
@@ -87,48 +91,36 @@ export const Route = createFileRoute("/api/chat")({
           try {
             parsedBody = JSON.parse(body);
           } catch {
-            return Response.json(
-              { error: "Invalid JSON in request body" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid JSON in request body" }, { status: 400 });
           }
 
           const { repo, message } = parsedBody;
 
           if (!repo || !message) {
-            return Response.json(
-              { error: "Missing repo or message" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Missing repo or message" }, { status: 400 });
           }
 
           // Validate input lengths
           if (typeof repo !== "string" || repo.length > 500) {
-            return Response.json(
-              { error: "Invalid repository format" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid repository format" }, { status: 400 });
           }
 
           if (typeof message !== "string" || message.length > MAX_MESSAGE_LENGTH) {
             return Response.json(
               { error: `Message too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.` },
-              { status: 400 }
+              { status: 400 },
             );
           }
 
           const parsed = parseRepoUrl(repo);
           if (!parsed) {
-            return Response.json(
-              { error: "Invalid repository URL" },
-              { status: 400 }
-            );
+            return Response.json({ error: "Invalid repository URL" }, { status: 400 });
           }
 
           const analysis = await analyzeRepository(
             parsed.owner,
             parsed.name,
-            `https://github.com/${parsed.owner}/${parsed.name}`
+            `https://github.com/${parsed.owner}/${parsed.name}`,
           );
 
           return Response.json(
@@ -137,15 +129,12 @@ export const Route = createFileRoute("/api/chat")({
               headers: {
                 "X-RateLimit-Limit": RATE_LIMIT_MAX_REQUESTS.toString(),
                 "X-RateLimit-Remaining": rateLimit.remaining.toString(),
-              }
-            }
+              },
+            },
           );
         } catch (e) {
           console.error("Chat error:", e); // Log for debugging
-          return Response.json(
-            { error: sanitizeError(e) },
-            { status: 500 }
-          );
+          return Response.json({ error: sanitizeError(e) }, { status: 500 });
         }
       },
     },

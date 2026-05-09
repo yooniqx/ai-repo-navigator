@@ -9,14 +9,14 @@
       {
         "name": "RATE_LIMITER",
         "class_name": "RateLimiter",
-        "script_name": "tanstack-start-app"
-      }
-    ]
+        "script_name": "tanstack-start-app",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["RateLimiter"]
-    }
-  ]
+      "new_classes": ["RateLimiter"],
+    },
+  ],
 }

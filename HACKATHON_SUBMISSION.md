@@ -19,6 +19,7 @@ Every developer faces the same challenge: understanding unfamiliar codebases. Wh
 - **Students learning from real projects** get overwhelmed by complex folder structures
 
 Traditional solutions fall short:
+
 - **Generic AI chatbots** lack repository-specific context and require manual copy-pasting
 - **README files** often omit architectural details and onboarding steps
 - **Manual exploration** is time-consuming and error-prone
@@ -29,6 +30,7 @@ Traditional solutions fall short:
 RepoMind solves this by providing **instant, intelligent repository analysis** through a beautiful web interface. Simply paste any public GitHub repository URL, and within seconds, receive:
 
 **1. Intelligent Summary**
+
 - Infers project purpose and target audience
 - Identifies application type (web app, API, library, CLI)
 - Determines architecture style (full-stack, client-side, backend)
@@ -36,12 +38,14 @@ RepoMind solves this by providing **instant, intelligent repository analysis** t
 - Provides community metrics and popularity indicators
 
 **2. Comprehensive Tech Stack Detection**
+
 - **8 categories analyzed**: Languages, frontend, backend, build tools, package managers, deployment, testing, databases
 - **100+ patterns recognized**: From Next.js to Rust, Docker to Prisma
 - **Framework-specific insights**: Tailored explanations for each technology
 - **Dependency analysis**: Complexity assessment and lock file detection
 
 **3. Architecture Overview**
+
 - **Visual hierarchy**: Clear section separation with bold headers and bullet points
 - **Component relationships**: How folders and files connect
 - **Design patterns**: Monorepo, MVC, service layer detection
@@ -50,6 +54,7 @@ RepoMind solves this by providing **instant, intelligent repository analysis** t
 
 **4. Repository Health Assessment**
 Six dimensions of quality analysis:
+
 - **Documentation Quality**: README depth, docs folder, examples, changelog
 - **Project Structure**: Folder organization, standard conventions, test presence
 - **Maintainability Score**: TypeScript, testing, linting, CI/CD automation
@@ -59,6 +64,7 @@ Six dimensions of quality analysis:
 
 **5. Beginner-Friendly Onboarding Guide**
 Step-by-step instructions with:
+
 - Installation commands for detected package managers
 - Environment setup guidance
 - Entry point navigation
@@ -68,6 +74,7 @@ Step-by-step instructions with:
 
 **6. Interactive Chat System**
 Ask questions and get structured answers:
+
 - "How does authentication work?" → Security patterns and implementation guide
 - "What's the frontend architecture?" → Component structure and state management
 - "How do I deploy this?" → CI/CD pipeline and deployment instructions
@@ -76,6 +83,7 @@ Ask questions and get structured answers:
 ### How It Works
 
 **Backend Intelligence:**
+
 1. **GitHub API Integration**: Fetches repository metadata, languages, README, and file tree
 2. **Pattern Recognition**: Analyzes 100+ file/folder patterns to detect technologies
 3. **Heuristic Analysis**: Infers architecture, purpose, and complexity without LLMs
@@ -83,6 +91,7 @@ Ask questions and get structured answers:
 5. **Guide Generation**: Creates personalized onboarding steps based on detected stack
 
 **Frontend Experience:**
+
 1. **Instant Loading**: Server-side rendering for fast initial page load
 2. **Progressive Enhancement**: Works without JavaScript, enhanced with React
 3. **Responsive Design**: Beautiful on desktop, tablet, and mobile
@@ -90,6 +99,7 @@ Ask questions and get structured answers:
 5. **Expandable Cards**: Detailed information without overwhelming users
 
 **Technical Architecture:**
+
 - **TanStack Start**: Full-stack React framework with SSR
 - **Cloudflare Workers**: Edge deployment for global <50ms latency
 - **Type-Safe**: End-to-end TypeScript with strict mode
@@ -101,6 +111,7 @@ Ask questions and get structured answers:
 ## 💼 Business Value
 
 ### For Individual Developers
+
 - **Time Savings**: Reduce onboarding time from days to minutes
 - **Confidence**: Make informed decisions about library adoption
 - **Learning**: Understand best practices from popular repositories
@@ -109,6 +120,7 @@ Ask questions and get structured answers:
 **ROI**: 10+ hours saved per repository exploration
 
 ### For Development Teams
+
 - **Faster Onboarding**: New hires become productive immediately
 - **Knowledge Sharing**: Democratize architectural understanding
 - **Code Review**: Quick health assessments before merging
@@ -117,6 +129,7 @@ Ask questions and get structured answers:
 **ROI**: 40+ hours saved per new team member onboarding
 
 ### For Open Source Maintainers
+
 - **Lower Barrier**: Attract more contributors with clear guidance
 - **Documentation**: Auto-generated architectural insights
 - **Quality Signal**: Health metrics build trust
@@ -125,6 +138,7 @@ Ask questions and get structured answers:
 **ROI**: 2-3x increase in contributor engagement
 
 ### For Technical Leaders
+
 - **Due Diligence**: Rapid assessment of acquisition targets
 - **Vendor Evaluation**: Analyze third-party library quality
 - **Team Productivity**: Reduce context-switching overhead
@@ -133,17 +147,20 @@ Ask questions and get structured answers:
 **ROI**: Better decision-making with comprehensive insights
 
 ### Market Opportunity
+
 - **TAM**: 27M+ developers worldwide (GitHub, 2024)
 - **SAM**: 10M+ developers working with unfamiliar codebases monthly
 - **SOM**: 1M+ developers needing daily repository analysis
 
 **Monetization Potential:**
+
 - **Freemium**: Public repos free, private repos paid
 - **Team Plans**: $10/user/month for collaboration features
 - **Enterprise**: $50/user/month for self-hosted + advanced analytics
 - **API Access**: $100/month for programmatic analysis
 
 **Projected Revenue (Year 1):**
+
 - 100K free users → 5K paid conversions (5% rate)
 - Average $15/month → $900K ARR
 - Enterprise deals → $300K ARR
@@ -157,6 +174,7 @@ Ask questions and get structured answers:
 
 **1. Repository-Specific Intelligence**
 Unlike generic AI chatbots (ChatGPT, Claude), RepoMind is purpose-built for GitHub repositories:
+
 - **Automatic context**: No manual copy-pasting required
 - **Structured analysis**: Consistent format across all repositories
 - **Developer-focused**: Technical explanations, not generic summaries
@@ -164,6 +182,7 @@ Unlike generic AI chatbots (ChatGPT, Claude), RepoMind is purpose-built for GitH
 
 **2. Heuristic-Based Analysis**
 While competitors rely on expensive LLM calls, RepoMind uses intelligent pattern matching:
+
 - **Instant results**: No waiting for AI generation
 - **Cost-effective**: No per-request API costs
 - **Reliable**: Consistent output quality
@@ -171,6 +190,7 @@ While competitors rely on expensive LLM calls, RepoMind uses intelligent pattern
 
 **3. Comprehensive Health Assessment**
 First tool to provide 6-dimensional repository quality analysis:
+
 - **Documentation Quality**: Beyond just "has README"
 - **Project Structure**: Evaluates organization patterns
 - **Maintainability Score**: Combines multiple quality signals
@@ -180,6 +200,7 @@ First tool to provide 6-dimensional repository quality analysis:
 
 **4. Beginner-Friendly Focus**
 Designed for developers of all experience levels:
+
 - **Step-by-step guides**: Not just "read the README"
 - **Command examples**: Copy-paste ready instructions
 - **Common pitfalls**: Proactive problem prevention
@@ -187,6 +208,7 @@ Designed for developers of all experience levels:
 
 **5. Modern Tech Stack**
 Built with cutting-edge technologies:
+
 - **TanStack Start**: Latest full-stack React framework
 - **Cloudflare Workers**: Edge computing for global performance
 - **React 19**: Concurrent features and server components
@@ -194,16 +216,16 @@ Built with cutting-edge technologies:
 
 ### Competitive Differentiation
 
-| Feature | RepoMind | GitHub | ChatGPT | Sourcegraph |
-|---------|----------|--------|---------|-------------|
-| Instant Analysis | ✅ | ❌ | ❌ | ❌ |
-| Health Assessment | ✅ | ❌ | ❌ | ❌ |
-| Beginner Guides | ✅ | ❌ | ❌ | ❌ |
-| No Setup Required | ✅ | ✅ | ✅ | ❌ |
-| Repository-Aware | ✅ | ✅ | ❌ | ✅ |
-| Free for Public Repos | ✅ | ✅ | ❌ | ❌ |
-| Architecture Inference | ✅ | ❌ | Partial | ❌ |
-| Tech Stack Detection | ✅ | Partial | ❌ | ❌ |
+| Feature                | RepoMind | GitHub  | ChatGPT | Sourcegraph |
+| ---------------------- | -------- | ------- | ------- | ----------- |
+| Instant Analysis       | ✅       | ❌      | ❌      | ❌          |
+| Health Assessment      | ✅       | ❌      | ❌      | ❌          |
+| Beginner Guides        | ✅       | ❌      | ❌      | ❌          |
+| No Setup Required      | ✅       | ✅      | ✅      | ❌          |
+| Repository-Aware       | ✅       | ✅      | ❌      | ✅          |
+| Free for Public Repos  | ✅       | ✅      | ❌      | ❌          |
+| Architecture Inference | ✅       | ❌      | Partial | ❌          |
+| Tech Stack Detection   | ✅       | Partial | ❌      | ❌          |
 
 ---
 
@@ -212,48 +234,56 @@ Built with cutting-edge technologies:
 ### Core Features (Implemented)
 
 **1. Repository Analysis**
+
 - Paste any GitHub URL for instant analysis
 - Detects 100+ technology patterns
 - Identifies 8 tech stack categories
 - Generates intelligent summaries with purpose inference
 
 **2. Architecture Overview**
+
 - Visual component hierarchy
 - Design pattern detection
 - Entry point identification
 - Data flow explanation
 
 **3. Repository Health**
+
 - 6-dimensional quality assessment
 - Documentation quality scoring
 - Maintainability metrics
 - Onboarding difficulty evaluation
 
 **4. Beginner Guide**
+
 - Step-by-step onboarding instructions
 - Package manager detection
 - Environment setup guidance
 - Validation steps
 
 **5. Developer Insights**
+
 - Project scale and popularity
 - Maintainability assessment
 - Code organization analysis
 - Collaboration patterns
 
 **6. Interactive Chat**
+
 - Keyword-based Q&A
 - Structured responses
 - Code examples
 - Context-aware recommendations
 
 **7. Beautiful UI**
+
 - Dark green developer theme
 - Responsive design
 - Expandable cards
 - Smooth animations
 
 **8. Performance**
+
 - Server-side rendering
 - Edge deployment
 - <50ms global latency
@@ -262,6 +292,7 @@ Built with cutting-edge technologies:
 ### Technical Features
 
 **Frontend:**
+
 - React 19 with concurrent features
 - TanStack Router for type-safe routing
 - TanStack Query for data fetching
@@ -270,6 +301,7 @@ Built with cutting-edge technologies:
 - TypeScript 5.8 for type safety
 
 **Backend:**
+
 - TanStack Start for SSR
 - Cloudflare Workers for edge computing
 - GitHub REST API integration
@@ -277,6 +309,7 @@ Built with cutting-edge technologies:
 - Error resilience layers
 
 **Developer Experience:**
+
 - Hot module replacement
 - TypeScript strict mode
 - ESLint + Prettier
@@ -290,42 +323,49 @@ Built with cutting-edge technologies:
 ### Technology Choices & Rationale
 
 **1. TanStack Start (Full-Stack Framework)**
+
 - **Why**: Modern alternative to Next.js with better TypeScript support
 - **Benefits**: File-based routing, SSR, API routes, type-safe data fetching
 - **Innovation**: Leverages React Server Components for optimal performance
 - **Impact**: Reduced bundle size, faster page loads, better SEO
 
 **2. Cloudflare Workers (Edge Computing)**
+
 - **Why**: Global distribution with <50ms latency worldwide
 - **Benefits**: No cold starts, automatic scaling, cost-effective
 - **Innovation**: Runs analysis at the edge, close to users
 - **Impact**: 10x faster than traditional server deployment
 
 **3. React 19 (UI Library)**
+
 - **Why**: Latest features including concurrent rendering and server components
 - **Benefits**: Better performance, improved developer experience
 - **Innovation**: Uses new `use` hook and automatic batching
 - **Impact**: Smoother UI updates, reduced re-renders
 
 **4. TypeScript 5.8 (Type System)**
+
 - **Why**: Catch errors at compile time, better IDE support
 - **Benefits**: End-to-end type safety, refactoring confidence
 - **Innovation**: Strict mode with latest type inference features
 - **Impact**: 40% fewer runtime errors, faster development
 
 **5. Tailwind CSS 4 (Styling)**
+
 - **Why**: Utility-first approach with custom design system
 - **Benefits**: Consistent styling, small bundle size, dark mode support
 - **Innovation**: CSS-first architecture with native cascade layers
 - **Impact**: 50% smaller CSS bundle, better performance
 
 **6. Vite 7 (Build Tool)**
+
 - **Why**: Lightning-fast HMR and optimized production builds
 - **Benefits**: Instant dev server startup, native ES modules
 - **Innovation**: Rolldown bundler for faster builds
 - **Impact**: 10x faster development iteration
 
 **7. Radix UI (Component Library)**
+
 - **Why**: Unstyled, accessible primitives
 - **Benefits**: WCAG 2.1 compliance, keyboard navigation, screen reader support
 - **Innovation**: Composable components with full control
@@ -334,30 +374,35 @@ Built with cutting-edge technologies:
 ### Technical Innovation
 
 **1. Heuristic Analysis Engine**
+
 - **Challenge**: LLM-based analysis is slow and expensive
 - **Solution**: Pattern-matching algorithm with 100+ rules
 - **Innovation**: Infers architecture without AI, achieving 95% accuracy
 - **Result**: Instant analysis, zero API costs, consistent quality
 
 **2. Health Scoring Algorithm**
+
 - **Challenge**: No standard for repository quality assessment
 - **Solution**: 6-dimensional scoring based on industry best practices
 - **Innovation**: Combines multiple signals (docs, tests, types, CI/CD)
 - **Result**: Objective quality metrics for any repository
 
 **3. Intelligent Summary Generation**
+
 - **Challenge**: Generic descriptions don't help developers
 - **Solution**: Infers purpose, audience, and complexity from structure
 - **Innovation**: Context-aware summaries without LLMs
 - **Result**: Actionable insights tailored to developer needs
 
 **4. Edge-Optimized Architecture**
+
 - **Challenge**: Traditional servers have high latency globally
 - **Solution**: Deploy to Cloudflare's 300+ edge locations
 - **Innovation**: SSR at the edge with automatic caching
 - **Result**: <50ms response time worldwide
 
 **5. Progressive Enhancement**
+
 - **Challenge**: JavaScript-heavy apps fail without JS
 - **Solution**: Server-render HTML, enhance with React
 - **Innovation**: Works without JavaScript, better with it
@@ -366,12 +411,14 @@ Built with cutting-edge technologies:
 ### Scalability & Performance
 
 **Current Capacity:**
+
 - 1,000 requests/second per edge location
 - 300+ edge locations globally
 - 99.99% uptime SLA
 - Auto-scaling to millions of requests
 
 **Optimization Techniques:**
+
 - Server-side rendering for instant page loads
 - Edge caching for repeated analyses
 - Lazy loading for code splitting
@@ -379,6 +426,7 @@ Built with cutting-edge technologies:
 - Prefetching for anticipated navigation
 
 **Monitoring & Observability:**
+
 - Real-time error tracking
 - Performance metrics (Core Web Vitals)
 - User analytics (privacy-focused)
@@ -391,6 +439,7 @@ Built with cutting-edge technologies:
 RepoMind represents a paradigm shift in how developers understand codebases. By combining intelligent heuristics, comprehensive health assessment, and beautiful UX, we've created a tool that saves developers hours of manual exploration while providing deeper insights than any existing solution.
 
 **Key Achievements:**
+
 - ✅ Instant analysis of any public GitHub repository
 - ✅ 6-dimensional health assessment (industry-first)
 - ✅ Intelligent summary generation without LLMs
@@ -401,6 +450,7 @@ RepoMind represents a paradigm shift in how developers understand codebases. By 
 - ✅ Open-source and MIT licensed
 
 **Impact:**
+
 - 10+ hours saved per repository exploration
 - 40+ hours saved per new team member onboarding
 - 2-3x increase in open-source contributor engagement
@@ -413,4 +463,4 @@ RepoMind will become the default tool for repository exploration, integrated int
 
 **Built with ❤️ by developers, for developers**
 
-*RepoMind - Decode any codebase in seconds*
+_RepoMind - Decode any codebase in seconds_

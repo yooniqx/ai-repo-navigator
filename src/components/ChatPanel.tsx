@@ -56,12 +56,23 @@ function useStreamedContent(full: string, enabled: boolean) {
   return shown;
 }
 
-function MarkdownBubble({ content, streaming = false, onTick }: { content: string; streaming?: boolean; onTick?: () => void }) {
+function MarkdownBubble({
+  content,
+  streaming = false,
+  onTick,
+}: {
+  content: string;
+  streaming?: boolean;
+  onTick?: () => void;
+}) {
   const shown = useStreamedContent(content, streaming);
-  useEffect(() => { onTick?.(); }, [shown, onTick]);
+  useEffect(() => {
+    onTick?.();
+  }, [shown, onTick]);
   const isStreaming = streaming && shown.length < content.length;
   return (
-    <div className="prose prose-invert prose-sm max-w-none
+    <div
+      className="prose prose-invert prose-sm max-w-none
       prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-foreground
       prose-h3:text-base prose-h3:mt-0 prose-h3:mb-2 prose-h3:text-primary
       prose-p:my-2 prose-p:text-foreground/90 prose-p:leading-relaxed
@@ -71,7 +82,8 @@ function MarkdownBubble({ content, streaming = false, onTick }: { content: strin
       prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[0.8em] prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
       prose-pre:bg-background/70 prose-pre:border prose-pre:border-border/60 prose-pre:rounded-lg prose-pre:text-xs prose-pre:my-2
       prose-blockquote:border-l-primary/50 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-xs prose-blockquote:font-mono
-      prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+      prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown>
       {isStreaming && (
         <span
@@ -91,21 +103,36 @@ function StatusIndicator() {
   }, []);
   return (
     <div className="flex justify-start animate-fade-up">
-      <div className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold relative" style={{ background: "var(--gradient-primary)" }}>
+      <div
+        className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold relative"
+        style={{ background: "var(--gradient-primary)" }}
+      >
         <span className="absolute inset-0 rounded-lg bg-primary/40 animate-ping" />
         <span className="relative">R</span>
       </div>
       <div className="glass rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%] space-y-2">
-        <div key={stage} className="flex items-center gap-2 text-[11px] font-mono text-primary/90 uppercase tracking-wider animate-fade-up">
+        <div
+          key={stage}
+          className="flex items-center gap-2 text-[11px] font-mono text-primary/90 uppercase tracking-wider animate-fade-up"
+        >
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
           <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
             {STATUS_STAGES[stage]}
           </span>
         </div>
         <div className="flex gap-1.5 items-center">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "0ms" }} />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "160ms" }} />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "320ms" }} />
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot"
+            style={{ animationDelay: "0ms" }}
+          />
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot"
+            style={{ animationDelay: "160ms" }}
+          />
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot"
+            style={{ animationDelay: "320ms" }}
+          />
         </div>
       </div>
     </div>
@@ -120,15 +147,19 @@ function EmptyState({ repo, onPick }: { repo: string; onPick: (q: string) => voi
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
           Repository Context Loaded
         </div>
-        <h3 className="font-semibold text-foreground mb-1">Ask anything about <span className="font-mono text-primary">{repo}</span></h3>
+        <h3 className="font-semibold text-foreground mb-1">
+          Ask anything about <span className="font-mono text-primary">{repo}</span>
+        </h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          I've indexed this repository's metadata, README, file structure, and detected stack.
-          Ask about architecture, where to start, specific folders, or how features are wired together.
+          I've indexed this repository's metadata, README, file structure, and detected stack. Ask
+          about architecture, where to start, specific folders, or how features are wired together.
         </p>
       </div>
 
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-2">Suggested questions</p>
+        <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-2">
+          Suggested questions
+        </p>
         <div className="grid sm:grid-cols-2 gap-2">
           {SUGGESTIONS.map((s, i) => (
             <button
@@ -138,8 +169,12 @@ function EmptyState({ repo, onPick }: { repo: string; onPick: (q: string) => voi
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <span className="text-base">{s.icon}</span>
-              <span className="text-foreground/90 group-hover:text-foreground transition-colors">{s.label}</span>
-              <span className="ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+              <span className="text-foreground/90 group-hover:text-foreground transition-colors">
+                {s.label}
+              </span>
+              <span className="ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                →
+              </span>
             </button>
           ))}
         </div>
@@ -173,10 +208,23 @@ export function ChatPanel({ repo }: { repo: string }) {
       const data = await res.json();
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: data.answer ?? "_Something went wrong._", ts: Date.now(), streaming: true },
+        {
+          role: "assistant",
+          content: data.answer ?? "_Something went wrong._",
+          ts: Date.now(),
+          streaming: true,
+        },
       ]);
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "_Network error. Try again._", ts: Date.now(), streaming: true }]);
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          content: "_Network error. Try again._",
+          ts: Date.now(),
+          streaming: true,
+        },
+      ]);
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -204,7 +252,10 @@ export function ChatPanel({ repo }: { repo: string }) {
             className={`flex animate-fade-up ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {m.role === "assistant" && (
-              <div className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold" style={{ background: "var(--gradient-primary)" }}>
+              <div
+                className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold"
+                style={{ background: "var(--gradient-primary)" }}
+              >
                 R
               </div>
             )}
@@ -219,7 +270,9 @@ export function ChatPanel({ repo }: { repo: string }) {
                 <MarkdownBubble
                   content={m.content}
                   streaming={m.streaming}
-                  onTick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })}
+                  onTick={() =>
+                    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
+                  }
                 />
               ) : (
                 <p className="whitespace-pre-wrap">{m.content}</p>
@@ -264,7 +317,15 @@ export function ChatPanel({ repo }: { repo: string }) {
             style={{ background: "var(--gradient-primary)" }}
           >
             <span>Send</span>
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>

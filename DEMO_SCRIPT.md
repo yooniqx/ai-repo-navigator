@@ -25,6 +25,7 @@ Think about the last time you joined a new team, evaluated an open-source librar
 **For technical leads:** You need to evaluate a third-party library. Is it well-maintained? Is the code organized? Will your team struggle to work with it?
 
 **The current solutions don't work:**
+
 - Generic AI chatbots like ChatGPT require you to manually copy-paste code and lack repository context
 - GitHub's interface shows you files but doesn't explain the architecture
 - Manual exploration is time-consuming and error-prone
@@ -60,9 +61,11 @@ Let me show you how it works with a real example."
 Look at what we get instantly:
 
 ### 1. Intelligent Summary
+
 **[Scroll to summary card]**
 
 'RepoMind doesn't just tell you it's a JavaScript library. It infers:
+
 - **Purpose:** JavaScript/TypeScript library designed for developers building production applications
 - **Architecture:** Modular library structure using JavaScript
 - **Best suited for:** Developers of all levels
@@ -71,9 +74,11 @@ Look at what we get instantly:
 This is intelligent inference — not just reading the README, but understanding the project's actual purpose and audience.'
 
 ### 2. Repository Health Assessment
+
 **[Click on Repository Health card]**
 
 'Here's something unique — a 6-dimensional health assessment:
+
 - **Documentation Quality:** Excellent — comprehensive README, dedicated docs folder
 - **Project Structure:** Well-organized — clear separation of concerns
 - **Maintainability Score:** High — typed, tested, linted, with automated CI
@@ -84,9 +89,11 @@ This is intelligent inference — not just reading the README, but understanding
 This gives you an instant quality assessment that would normally require hours of manual inspection.'
 
 ### 3. Architecture Overview
+
 **[Click on Architecture Overview card]**
 
 'RepoMind automatically detects the architecture patterns:
+
 - **Library / Utility structure** with modular design
 - **Monorepo Layout** with multiple packages
 - **Automated Testing** with Jest
@@ -95,6 +102,7 @@ This gives you an instant quality assessment that would normally require hours o
 Each section has clear explanations with bullet points — easy to scan and understand.'
 
 ### 4. Beginner Guide
+
 **[Click on Beginner Guide card]**
 
 'This is my favorite feature. RepoMind generates a personalized onboarding guide:
@@ -107,6 +115,7 @@ Each section has clear explanations with bullet points — easy to scan and unde
 Every step has actionable sub-items. No more guessing how to get started.'
 
 ### 5. Interactive Chat
+
 **[Click on Ask RepoMind card, type: "How does the testing work?"]**
 
 'You can ask questions about the repository. Watch this:
@@ -114,6 +123,7 @@ Every step has actionable sub-items. No more guessing how to get started.'
 **[Show response]**
 
 The chat provides structured answers with:
+
 - Detected testing tools (Jest, Playwright)
 - Test organization patterns
 - How to run tests
@@ -162,11 +172,13 @@ For a team of 10 developers, that's **400+ hours saved annually** just on onboar
 ## Business Value (15 seconds)
 
 "The market opportunity is massive:
+
 - **27 million developers** worldwide
 - **10 million** work with unfamiliar codebases monthly
 - **1 million** need daily repository analysis
 
 Our monetization strategy:
+
 - **Free** for public repositories
 - **$10/user/month** for team features and private repos
 - **$50/user/month** for enterprise with self-hosting
@@ -192,12 +204,14 @@ Projected **$1.2M ARR** in Year 1 with just 5% conversion."
 "I want to highlight how we built RepoMind using modern AI-assisted development:
 
 **IBM Bob** was our primary development accelerator:
+
 - Enhanced the repository analysis engine with intelligent pattern detection
 - Improved chat responses to be more detailed and developer-focused
 - Generated comprehensive documentation
 - Accelerated our development workflow by 3x
 
 **Supporting tools:**
+
 - **Lovable** for rapid UI scaffolding and frontend prototyping
 - **ChatGPT** for architecture planning and workflow ideation
 - **GitHub Copilot** for coding assistance and refactoring
@@ -260,6 +274,7 @@ A: "Freemium model: public repos free forever, private repos and team features a
 ## Demo Tips
 
 **Before Demo:**
+
 - ✅ Test the demo repository URL works
 - ✅ Clear browser cache for fresh demo
 - ✅ Have backup repository URLs ready
@@ -267,6 +282,7 @@ A: "Freemium model: public repos free forever, private repos and team features a
 - ✅ Test internet connection
 
 **During Demo:**
+
 - 🎯 Speak clearly and confidently
 - 🎯 Point to specific UI elements as you explain
 - 🎯 Pause briefly after key points
@@ -274,6 +290,7 @@ A: "Freemium model: public repos free forever, private repos and team features a
 - 🎯 Show enthusiasm for the problem you're solving
 
 **If Something Goes Wrong:**
+
 - Have screenshots as backup
 - Explain what should happen
 - Move to next section smoothly

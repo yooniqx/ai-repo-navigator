@@ -9,6 +9,7 @@
 ## 🎯 Problem Statement
 
 Developers waste hours trying to understand unfamiliar codebases:
+
 - **Onboarding friction** — New team members struggle to navigate large repositories
 - **Context switching** — Jumping between projects requires re-learning architecture
 - **Documentation gaps** — READMEs often lack architectural insights
@@ -18,6 +19,7 @@ Developers waste hours trying to understand unfamiliar codebases:
 ## 💡 Solution
 
 RepoMind analyzes any public GitHub repository and generates:
+
 - **Instant architecture overview** — Understand the codebase structure in seconds
 - **Intelligent summaries** — Purpose, target users, and tech stack inference
 - **Beginner-friendly guides** — Step-by-step onboarding instructions
@@ -28,12 +30,14 @@ RepoMind analyzes any public GitHub repository and generates:
 ## ✨ Features
 
 ### 🔍 Comprehensive Analysis
+
 - **Tech Stack Detection** — Identifies 8 categories: languages, frontend, backend, build tools, package managers, deployment, testing, databases
 - **Architecture Mapping** — Detects full-stack vs client-only vs backend patterns
 - **Smart Heuristics** — Recognizes 100+ file/folder patterns
 - **Entry Point Detection** — Finds main files and execution paths
 
 ### 📊 Repository Health Assessment
+
 - **Documentation Quality** — Evaluates README depth, docs folder, examples
 - **Project Structure** — Analyzes folder organization and conventions
 - **Maintainability Score** — Checks TypeScript, testing, linting, CI/CD
@@ -42,6 +46,7 @@ RepoMind analyzes any public GitHub repository and generates:
 - **Code Organization** — Reviews modularity and architectural layers
 
 ### 🎓 Developer Insights
+
 - **Project Scale** — Community size and adoption metrics
 - **Maintainability** — Code quality indicators
 - **Modularity** — Separation of concerns analysis
@@ -49,6 +54,7 @@ RepoMind analyzes any public GitHub repository and generates:
 - **Activity** — Development velocity and maintenance status
 
 ### 💬 Interactive Chat
+
 - Keyword-based Q&A for common questions
 - Architecture, frontend, backend, testing, deployment queries
 - Structured responses with code examples
@@ -57,6 +63,7 @@ RepoMind analyzes any public GitHub repository and generates:
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **React 19** — Modern UI library with concurrent features
 - **TanStack Router** — Type-safe file-based routing
 - **TanStack Query** — Data fetching and caching
@@ -65,12 +72,14 @@ RepoMind analyzes any public GitHub repository and generates:
 - **TypeScript 5.8** — End-to-end type safety
 
 ### Backend
+
 - **TanStack Start** — Full-stack React framework with SSR
 - **Cloudflare Workers** — Edge deployment for global performance
 - **GitHub REST API** — Repository data fetching
 - **Server-side analysis** — Heavy computation on the server
 
 ### Build & Development
+
 - **Vite 7** — Lightning-fast build tool
 - **Bun** — Fast package manager and runtime
 - **ESLint + Prettier** — Code quality and formatting
@@ -93,16 +102,19 @@ RepoMind was built using modern AI-assisted development practices, demonstrating
 ### Supporting AI Tools
 
 **Lovable** — Rapid UI scaffolding and frontend prototyping
+
 - Generated initial component structure and layout designs
 - Accelerated frontend development with pre-built UI patterns
 - Provided design system foundation with Tailwind CSS integration
 
 **ChatGPT** — Architecture planning and workflow ideation
+
 - Brainstormed technical approaches and design patterns
 - Validated architectural decisions and technology choices
 - Assisted with problem decomposition and feature planning
 
 **GitHub Copilot** — Coding assistance and refactoring
+
 - Provided inline code suggestions during implementation
 - Accelerated repetitive coding tasks and boilerplate generation
 - Assisted with TypeScript type definitions and error handling
@@ -110,6 +122,7 @@ RepoMind was built using modern AI-assisted development practices, demonstrating
 ### Development Impact
 
 This AI-assisted workflow enabled:
+
 - **Faster iteration cycles** — From concept to production-ready code in weeks, not months
 - **Higher code quality** — AI-suggested improvements caught edge cases and improved error handling
 - **Better documentation** — Comprehensive docs generated alongside code development
@@ -120,6 +133,7 @@ The combination of IBM Bob's deep analysis capabilities with supporting tools cr
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ or Bun
 - Git
 
@@ -207,6 +221,7 @@ The core analysis engine (`src/lib/analyze.server.ts`) provides:
 ### Chat System
 
 Keyword-based Q&A that responds to:
+
 - Authentication questions → Shows auth patterns and security checklist
 - Frontend questions → Explains UI architecture and state management
 - Backend questions → Details API design and request lifecycle
@@ -216,24 +231,28 @@ Keyword-based Q&A that responds to:
 ## 🗺️ Future Roadmap
 
 ### Phase 1: Enhanced Analysis (Q2 2026)
+
 - [ ] Real AI integration (OpenAI/Anthropic) for deeper insights
 - [ ] File content analysis (not just structure)
 - [ ] Dependency graph visualization
 - [ ] Code complexity metrics
 
 ### Phase 2: Collaboration Features (Q3 2026)
+
 - [ ] GitHub OAuth for private repositories
 - [ ] Team workspaces and shared analyses
 - [ ] Annotation and note-taking on repositories
 - [ ] Export analysis as PDF/Markdown
 
 ### Phase 3: Advanced Features (Q4 2026)
+
 - [ ] Repository comparison mode
 - [ ] Historical analysis (track changes over time)
 - [ ] Custom analysis templates
 - [ ] API for programmatic access
 
 ### Phase 4: Enterprise (2027)
+
 - [ ] Self-hosted deployment option
 - [ ] GitLab and Bitbucket support
 - [ ] Advanced security scanning

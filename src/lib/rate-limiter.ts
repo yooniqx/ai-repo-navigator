@@ -18,7 +18,9 @@ export class RateLimiter {
     const now = Date.now();
 
     // Get current rate limit data
-    const data = await this.state.storage.get(key) as { count: number; resetAt: number } | undefined;
+    const data = (await this.state.storage.get(key)) as
+      | { count: number; resetAt: number }
+      | undefined;
 
     if (!data || now > data.resetAt) {
       // Reset or initialize
@@ -61,7 +63,7 @@ export async function checkDistributedRateLimit(
   env: { RATE_LIMITER?: any },
   clientIP: string,
   limit: number,
-  window: number
+  window: number,
 ): Promise<{ allowed: boolean; remaining: number; resetAt?: number }> {
   // Fallback to in-memory if Durable Object not available (development)
   if (!env.RATE_LIMITER) {
@@ -80,7 +82,7 @@ export async function checkDistributedRateLimit(
     url.searchParams.set("window", window.toString());
 
     const response = await stub.fetch(url.toString());
-    const result = await response.json() as {
+    const result = (await response.json()) as {
       allowed: boolean;
       remaining: number;
       resetAt: number;

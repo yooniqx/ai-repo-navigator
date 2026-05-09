@@ -8,7 +8,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "RepoMind — Understand Any GitHub Repository in Minutes" },
-      { name: "description", content: "AI-powered tool that explains any GitHub repository — architecture, structure, and beginner guides in seconds." },
+      {
+        name: "description",
+        content:
+          "AI-powered tool that explains any GitHub repository — architecture, structure, and beginner guides in seconds.",
+      },
       { property: "og:title", content: "RepoMind — Understand Any GitHub Repository in Minutes" },
       { property: "og:description", content: "AI-powered repository analysis for developers." },
     ],
@@ -55,21 +59,32 @@ function Index() {
             </div>
 
             <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.05] animate-fade-up">
-              Understand Any{" "}
-              <span className="gradient-text glow-text">GitHub Repository</span>
-              <br className="hidden sm:block" />
-              {" "}in Minutes
+              Understand Any <span className="gradient-text glow-text">GitHub Repository</span>
+              <br className="hidden sm:block" /> in Minutes
             </h1>
 
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: "80ms" }}>
-              Paste a repo URL and RepoMind generates an instant breakdown — architecture,
-              folder structure, tech stack, and a beginner-friendly tour. Built for developers.
+            <p
+              className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-up"
+              style={{ animationDelay: "80ms" }}
+            >
+              Paste a repo URL and RepoMind generates an instant breakdown — architecture, folder
+              structure, tech stack, and a beginner-friendly tour. Built for developers.
             </p>
 
-            <form onSubmit={submit} className="mt-10 max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: "160ms" }}>
+            <form
+              onSubmit={submit}
+              className="mt-10 max-w-2xl mx-auto animate-fade-up"
+              style={{ animationDelay: "160ms" }}
+            >
               <div className="glass gradient-border rounded-2xl p-2 flex flex-col sm:flex-row gap-2 shadow-glow">
                 <div className="flex items-center gap-3 flex-1 px-4">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5 text-muted-foreground shrink-0" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.18.08 1.8 1.21 1.8 1.21 1.04 1.79 2.74 1.27 3.41.97.1-.76.41-1.27.74-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.2-3.1-.12-.3-.52-1.48.11-3.08 0 0 .98-.31 3.2 1.18a11 11 0 0 1 5.82 0c2.22-1.49 3.2-1.18 3.2-1.18.63 1.6.23 2.78.11 3.08.75.81 1.2 1.84 1.2 3.1 0 4.43-2.7 5.4-5.27 5.69.42.36.8 1.07.8 2.16v3.21c0 .31.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z" /></svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5 text-muted-foreground shrink-0"
+                    fill="currentColor"
+                  >
+                    <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.18.08 1.8 1.21 1.8 1.21 1.04 1.79 2.74 1.27 3.41.97.1-.76.41-1.27.74-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.2-3.1-.12-.3-.52-1.48.11-3.08 0 0 .98-.31 3.2 1.18a11 11 0 0 1 5.82 0c2.22-1.49 3.2-1.18 3.2-1.18.63 1.6.23 2.78.11 3.08.75.81 1.2 1.84 1.2 3.1 0 4.43-2.7 5.4-5.27 5.69.42.36.8 1.07.8 2.16v3.21c0 .31.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z" />
+                  </svg>
                   <input
                     type="text"
                     value={url}
@@ -91,7 +106,10 @@ function Index() {
               {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
             </form>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <div
+              className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs animate-fade-up"
+              style={{ animationDelay: "240ms" }}
+            >
               <span className="text-muted-foreground mr-1">Try:</span>
               {EXAMPLES.map((ex) => (
                 <button
@@ -110,12 +128,28 @@ function Index() {
         <section id="features" className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { t: "Instant Architecture Map", d: "See how the codebase is organized before reading a single line." },
-              { t: "Beginner-Friendly Tour", d: "A guided onboarding path so new contributors ramp up fast." },
-              { t: "Ask Anything", d: "Chat with the repo to get answers grounded in its structure." },
+              {
+                t: "Instant Architecture Map",
+                d: "See how the codebase is organized before reading a single line.",
+              },
+              {
+                t: "Beginner-Friendly Tour",
+                d: "A guided onboarding path so new contributors ramp up fast.",
+              },
+              {
+                t: "Ask Anything",
+                d: "Chat with the repo to get answers grounded in its structure.",
+              },
             ].map((f, i) => (
-              <div key={f.t} className="glass rounded-2xl p-6 animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="h-10 w-10 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
+              <div
+                key={f.t}
+                className="glass rounded-2xl p-6 animate-fade-up"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div
+                  className="h-10 w-10 rounded-lg flex items-center justify-center mb-4"
+                  style={{ background: "var(--gradient-primary)" }}
+                >
                   <span className="font-mono font-semibold text-primary-foreground">{i + 1}</span>
                 </div>
                 <h3 className="font-semibold mb-1">{f.t}</h3>
@@ -140,11 +174,26 @@ function Index() {
 
           <div className="grid md:grid-cols-2 gap-4">
             {[
-              { g: "Requires manually pasting context every time", r: "Automatically analyzes the entire repository structure" },
-              { g: "Provides broad, generic answers", r: "Gives developer-focused architecture insights" },
-              { g: "Struggles with onboarding new contributors", r: "Generates beginner-friendly guidance and tours" },
-              { g: "Not repository-aware out of the box", r: "Optimized specifically for GitHub repositories" },
-              { g: "Responses can feel unstructured", r: "Organizes summaries into clear developer workflows" },
+              {
+                g: "Requires manually pasting context every time",
+                r: "Automatically analyzes the entire repository structure",
+              },
+              {
+                g: "Provides broad, generic answers",
+                r: "Gives developer-focused architecture insights",
+              },
+              {
+                g: "Struggles with onboarding new contributors",
+                r: "Generates beginner-friendly guidance and tours",
+              },
+              {
+                g: "Not repository-aware out of the box",
+                r: "Optimized specifically for GitHub repositories",
+              },
+              {
+                g: "Responses can feel unstructured",
+                r: "Organizes summaries into clear developer workflows",
+              },
             ].map((row, i) => (
               <div
                 key={i}
@@ -153,10 +202,16 @@ function Index() {
               >
                 <div className="glass rounded-2xl p-5 opacity-70 hover:opacity-90 transition-all duration-300">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="h-6 w-6 rounded-md flex items-center justify-center bg-muted text-muted-foreground text-xs">✕</span>
-                    <span className="text-xs font-mono uppercase tracking-wide text-muted-foreground">Generic AI</span>
+                    <span className="h-6 w-6 rounded-md flex items-center justify-center bg-muted text-muted-foreground text-xs">
+                      ✕
+                    </span>
+                    <span className="text-xs font-mono uppercase tracking-wide text-muted-foreground">
+                      Generic AI
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground/40">{row.g}</p>
+                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground/40">
+                    {row.g}
+                  </p>
                 </div>
 
                 <div className="glass rounded-2xl p-5 border-primary/30 hover:border-primary/60 hover:-translate-y-0.5 hover:shadow-glow transition-all duration-300">
@@ -167,7 +222,9 @@ function Index() {
                     >
                       ✓
                     </span>
-                    <span className="text-xs font-mono uppercase tracking-wide text-primary">RepoMind</span>
+                    <span className="text-xs font-mono uppercase tracking-wide text-primary">
+                      RepoMind
+                    </span>
                   </div>
                   <p className="text-sm text-foreground">{row.r}</p>
                 </div>
@@ -190,10 +247,26 @@ function Index() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { t: "Paste GitHub URL", d: "Drop in any public GitHub repository link and RepoMind takes it from there.", icon: "🔗" },
-              { t: "Analyze Structure", d: "We pull metadata, README, languages, and the file tree to map the codebase.", icon: "🔍" },
-              { t: "Generate Insights", d: "Architecture, tech stack, and important files are organized into clean cards.", icon: "🧠" },
-              { t: "Onboard Faster", d: "Beginner guides and a chat assistant help developers get productive immediately.", icon: "🚀" },
+              {
+                t: "Paste GitHub URL",
+                d: "Drop in any public GitHub repository link and RepoMind takes it from there.",
+                icon: "🔗",
+              },
+              {
+                t: "Analyze Structure",
+                d: "We pull metadata, README, languages, and the file tree to map the codebase.",
+                icon: "🔍",
+              },
+              {
+                t: "Generate Insights",
+                d: "Architecture, tech stack, and important files are organized into clean cards.",
+                icon: "🧠",
+              },
+              {
+                t: "Onboard Faster",
+                d: "Beginner guides and a chat assistant help developers get productive immediately.",
+                icon: "🚀",
+              },
             ].map((s, i) => (
               <div
                 key={s.t}
@@ -225,12 +298,36 @@ function Index() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { t: "Repository Analysis", d: "Deep metadata, language breakdown, and project health signals at a glance.", icon: "📊" },
-              { t: "Architecture Overview", d: "Detect frontend/backend split, application flow, and folder responsibilities.", icon: "🏗️" },
-              { t: "Beginner Guidance", d: "Step-by-step onboarding tailored to the project's actual setup and stack.", icon: "🎓" },
-              { t: "Developer-Focused AI", d: "Structured, technical answers — no generic chatbot fluff or vague summaries.", icon: "🤖" },
-              { t: "GitHub Integration", d: "Direct connection to public GitHub APIs — no installs, no auth, no friction.", icon: "🐙" },
-              { t: "Important Files", d: "Auto-surfaced configs and entry points with explanations of what they do.", icon: "📁" },
+              {
+                t: "Repository Analysis",
+                d: "Deep metadata, language breakdown, and project health signals at a glance.",
+                icon: "📊",
+              },
+              {
+                t: "Architecture Overview",
+                d: "Detect frontend/backend split, application flow, and folder responsibilities.",
+                icon: "🏗️",
+              },
+              {
+                t: "Beginner Guidance",
+                d: "Step-by-step onboarding tailored to the project's actual setup and stack.",
+                icon: "🎓",
+              },
+              {
+                t: "Developer-Focused AI",
+                d: "Structured, technical answers — no generic chatbot fluff or vague summaries.",
+                icon: "🤖",
+              },
+              {
+                t: "GitHub Integration",
+                d: "Direct connection to public GitHub APIs — no installs, no auth, no friction.",
+                icon: "🐙",
+              },
+              {
+                t: "Important Files",
+                d: "Auto-surfaced configs and entry points with explanations of what they do.",
+                icon: "📁",
+              },
             ].map((f, i) => (
               <div
                 key={f.t}
