@@ -24,6 +24,37 @@ const STATUS_STAGES = [
   "Composing developer-focused response",
 ];
 
+// Typewriter that streams content in chunk-aligned bursts (word/punctuation aware)
+function useStreamedContent(full: string, enabled: boolean) {
+  const [shown, setShown] = useState(enabled ? "" : full);
+  useEffect(() => {
+    if (!enabled) {
+      setShown(full);
+      return;
+    }
+    let i = 0;
+    setShown("");
+    let raf = 0;
+    let last = performance.now();
+    // Tokenize into chunks: words, whitespace, punctuation, newlines
+    const chunks = full.match(/(\s+|[^\s]+)/g) ?? [full];
+    const tick = (now: number) => {
+      // pacing: ~18ms per chunk, longer pause after sentence punctuation
+      const prev = chunks[i - 1] ?? "";
+      const delay = /[.!?]\s*$/.test(prev) ? 90 : /[,;:]\s*$/.test(prev) ? 45 : 18;
+      if (now - last >= delay) {
+        i = Math.min(i + 1, chunks.length);
+        setShown(chunks.slice(0, i).join(""));
+        last = now;
+      }
+      if (i < chunks.length) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [full, enabled]);
+  return shown;
+}
+
 function MarkdownBubble({ content }: { content: string }) {
   return (
     <div className="prose prose-invert prose-sm max-w-none
