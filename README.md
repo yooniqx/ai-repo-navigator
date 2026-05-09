@@ -139,6 +139,13 @@ RepoMind was built using modern AI-assisted development practices, demonstrating
 - Accelerated repetitive coding tasks and boilerplate generation
 - Assisted with TypeScript type definitions and error handling
 
+**Canva AI** — Presentation and visual design
+
+- Created professional hackathon presentation materials
+- Generated visual design assets for demo presentations
+- Designed pitch deck with consistent branding
+- Produced presentation graphics and diagrams
+
 ### Development Impact
 
 This AI-assisted workflow enabled:
