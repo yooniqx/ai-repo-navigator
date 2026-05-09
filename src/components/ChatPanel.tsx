@@ -6,6 +6,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   ts: number;
+  streaming?: boolean;
 }
 
 const SUGGESTIONS = [
@@ -24,7 +25,41 @@ const STATUS_STAGES = [
   "Composing developer-focused response",
 ];
 
-function MarkdownBubble({ content }: { content: string }) {
+// Typewriter that streams content in chunk-aligned bursts (word/punctuation aware)
+function useStreamedContent(full: string, enabled: boolean) {
+  const [shown, setShown] = useState(enabled ? "" : full);
+  useEffect(() => {
+    if (!enabled) {
+      setShown(full);
+      return;
+    }
+    let i = 0;
+    setShown("");
+    let raf = 0;
+    let last = performance.now();
+    // Tokenize into chunks: words, whitespace, punctuation, newlines
+    const chunks = full.match(/(\s+|[^\s]+)/g) ?? [full];
+    const tick = (now: number) => {
+      // pacing: ~18ms per chunk, longer pause after sentence punctuation
+      const prev = chunks[i - 1] ?? "";
+      const delay = /[.!?]\s*$/.test(prev) ? 90 : /[,;:]\s*$/.test(prev) ? 45 : 18;
+      if (now - last >= delay) {
+        i = Math.min(i + 1, chunks.length);
+        setShown(chunks.slice(0, i).join(""));
+        last = now;
+      }
+      if (i < chunks.length) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [full, enabled]);
+  return shown;
+}
+
+function MarkdownBubble({ content, streaming = false, onTick }: { content: string; streaming?: boolean; onTick?: () => void }) {
+  const shown = useStreamedContent(content, streaming);
+  useEffect(() => { onTick?.(); }, [shown, onTick]);
+  const isStreaming = streaming && shown.length < content.length;
   return (
     <div className="prose prose-invert prose-sm max-w-none
       prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-foreground
@@ -37,7 +72,13 @@ function MarkdownBubble({ content }: { content: string }) {
       prose-pre:bg-background/70 prose-pre:border prose-pre:border-border/60 prose-pre:rounded-lg prose-pre:text-xs prose-pre:my-2
       prose-blockquote:border-l-primary/50 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-xs prose-blockquote:font-mono
       prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown>
+      {isStreaming && (
+        <span
+          aria-hidden
+          className="inline-block align-[-2px] ml-0.5 h-3.5 w-[2px] bg-primary animate-caret-blink rounded-sm"
+        />
+      )}
     </div>
   );
 }
@@ -45,20 +86,26 @@ function MarkdownBubble({ content }: { content: string }) {
 function StatusIndicator() {
   const [stage, setStage] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setStage((s) => Math.min(s + 1, STATUS_STAGES.length - 1)), 500);
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, STATUS_STAGES.length - 1)), 600);
     return () => clearInterval(id);
   }, []);
   return (
     <div className="flex justify-start animate-fade-up">
-      <div className="glass rounded-2xl px-4 py-3 max-w-[85%] space-y-2">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+      <div className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold relative" style={{ background: "var(--gradient-primary)" }}>
+        <span className="absolute inset-0 rounded-lg bg-primary/40 animate-ping" />
+        <span className="relative">R</span>
+      </div>
+      <div className="glass rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%] space-y-2">
+        <div key={stage} className="flex items-center gap-2 text-[11px] font-mono text-primary/90 uppercase tracking-wider animate-fade-up">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          {STATUS_STAGES[stage]}
+          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
+            {STATUS_STAGES[stage]}
+          </span>
         </div>
         <div className="flex gap-1.5 items-center">
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "120ms" }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "240ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "0ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "160ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "320ms" }} />
         </div>
       </div>
     </div>
@@ -126,10 +173,10 @@ export function ChatPanel({ repo }: { repo: string }) {
       const data = await res.json();
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: data.answer ?? "_Something went wrong._", ts: Date.now() },
+        { role: "assistant", content: data.answer ?? "_Something went wrong._", ts: Date.now(), streaming: true },
       ]);
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "_Network error. Try again._", ts: Date.now() }]);
+      setMessages((m) => [...m, { role: "assistant", content: "_Network error. Try again._", ts: Date.now(), streaming: true }]);
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -168,7 +215,15 @@ export function ChatPanel({ repo }: { repo: string }) {
                   : "glass text-foreground rounded-bl-sm"
               }`}
             >
-              {m.role === "assistant" ? <MarkdownBubble content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
+              {m.role === "assistant" ? (
+                <MarkdownBubble
+                  content={m.content}
+                  streaming={m.streaming}
+                  onTick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })}
+                />
+              ) : (
+                <p className="whitespace-pre-wrap">{m.content}</p>
+              )}
             </div>
           </div>
         ))}
