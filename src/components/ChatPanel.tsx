@@ -173,10 +173,10 @@ export function ChatPanel({ repo }: { repo: string }) {
       const data = await res.json();
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: data.answer ?? "_Something went wrong._", ts: Date.now() },
+        { role: "assistant", content: data.answer ?? "_Something went wrong._", ts: Date.now(), streaming: true },
       ]);
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "_Network error. Try again._", ts: Date.now() }]);
+      setMessages((m) => [...m, { role: "assistant", content: "_Network error. Try again._", ts: Date.now(), streaming: true }]);
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
