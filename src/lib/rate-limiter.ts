@@ -100,6 +100,12 @@ function checkInMemoryRateLimit(
 ): { allowed: boolean; remaining: number; resetAt: number } {
   const now = Date.now();
   const key = `ratelimit:${clientIP}`;
+  
+  // Periodically cleanup expired entries (every ~100 requests)
+  if (Math.random() < 0.01) {
+    cleanupExpiredEntries();
+  }
+  
   const record = inMemoryStore.get(key);
 
   if (!record || now > record.resetAt) {
@@ -124,19 +130,15 @@ function checkInMemoryRateLimit(
   };
 }
 
-// Cleanup old entries periodically (prevent memory leak)
-if (typeof setInterval !== "undefined") {
-  setInterval(
-    () => {
-      const now = Date.now();
-      for (const [key, value] of inMemoryStore.entries()) {
-        if (now > value.resetAt) {
-          inMemoryStore.delete(key);
-        }
-      }
-    },
-    5 * 60 * 1000,
-  ); // Clean up every 5 minutes
+// Cleanup old entries on-demand (prevent memory leak)
+// Called during rate limit checks to avoid global setInterval
+function cleanupExpiredEntries(): void {
+  const now = Date.now();
+  for (const [key, value] of inMemoryStore.entries()) {
+    if (now > value.resetAt) {
+      inMemoryStore.delete(key);
+    }
+  }
 }
 
 // Type declaration for Cloudflare Durable Object Namespace
