@@ -6,6 +6,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   ts: number;
+  streaming?: boolean;
 }
 
 const SUGGESTIONS = [
