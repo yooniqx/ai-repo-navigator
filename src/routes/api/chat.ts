@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { parseRepoUrl } from "@/lib/repo";
 import { analyzeRepository, buildChatAnswer } from "@/lib/analyze.server";
+import { checkDistributedRateLimit } from "@/lib/rate-limiter";
 
-// Rate limiting: Simple in-memory store (use Redis/KV in production)
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+// Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 20; // 20 requests per minute (higher for chat)
 
@@ -17,23 +17,6 @@ function getClientIP(request: Request): string {
   return request.headers.get("cf-connecting-ip") ||
          request.headers.get("x-forwarded-for")?.split(",")[0] ||
          "unknown";
-}
-
-function checkRateLimit(clientIP: string): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const record = rateLimitStore.get(clientIP);
-
-  if (!record || now > record.resetAt) {
-    rateLimitStore.set(clientIP, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count };
 }
 
 function sanitizeError(error: unknown): string {
@@ -53,7 +36,7 @@ function sanitizeError(error: unknown): string {
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request, context }: { request: Request; context?: any }) => {
         try {
           // Check payload size
           const contentLength = request.headers.get("content-length");
@@ -64,9 +47,16 @@ export const Route = createFileRoute("/api/chat")({
             );
           }
 
-          // Rate limiting
+          // Distributed rate limiting using Durable Objects
           const clientIP = getClientIP(request);
-          const rateLimit = checkRateLimit(clientIP);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const env = (context as any)?.cloudflare?.env || {};
+          const rateLimit = await checkDistributedRateLimit(
+            env,
+            clientIP,
+            RATE_LIMIT_MAX_REQUESTS,
+            RATE_LIMIT_WINDOW
+          );
           
           if (!rateLimit.allowed) {
             return Response.json(
@@ -76,7 +66,9 @@ export const Route = createFileRoute("/api/chat")({
                 headers: {
                   "X-RateLimit-Limit": RATE_LIMIT_MAX_REQUESTS.toString(),
                   "X-RateLimit-Remaining": "0",
-                  "X-RateLimit-Reset": new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
+                  "X-RateLimit-Reset": rateLimit.resetAt
+                    ? new Date(rateLimit.resetAt).toISOString()
+                    : new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
                 }
               }
             );
