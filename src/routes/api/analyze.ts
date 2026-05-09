@@ -37,7 +37,7 @@ function sanitizeError(error: unknown): string {
 export const Route = createFileRoute("/api/analyze")({
   server: {
     handlers: {
-      POST: async ({ request, context }: { request: Request; context?: any }) => {
+      POST: async ({ request, context }) => {
         try {
           // Check payload size
           const contentLength = request.headers.get("content-length");
@@ -48,12 +48,10 @@ export const Route = createFileRoute("/api/analyze")({
             );
           }
 
-          // Distributed rate limiting using Durable Objects
+          // Rate limiting (using in-memory implementation)
           const clientIP = getClientIP(request);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const env = (context as any)?.cloudflare?.env || {};
           const rateLimit = await checkDistributedRateLimit(
-            env,
+            {},
             clientIP,
             RATE_LIMIT_MAX_REQUESTS,
             RATE_LIMIT_WINDOW,
