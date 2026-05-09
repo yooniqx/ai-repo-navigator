@@ -215,7 +215,15 @@ export function ChatPanel({ repo }: { repo: string }) {
                   : "glass text-foreground rounded-bl-sm"
               }`}
             >
-              {m.role === "assistant" ? <MarkdownBubble content={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}
+              {m.role === "assistant" ? (
+                <MarkdownBubble
+                  content={m.content}
+                  streaming={m.streaming}
+                  onTick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })}
+                />
+              ) : (
+                <p className="whitespace-pre-wrap">{m.content}</p>
+              )}
             </div>
           </div>
         ))}
