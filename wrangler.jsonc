@@ -1,22 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
+  "name": "repomind",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "RATE_LIMITER",
-        "class_name": "RateLimiter",
-        "script_name": "tanstack-start-app",
-      },
-    ],
-  },
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_classes": ["RateLimiter"],
-    },
-  ],
+  "main": "src/server.ts"
 }
