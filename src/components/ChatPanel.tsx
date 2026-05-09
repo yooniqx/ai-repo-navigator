@@ -86,20 +86,26 @@ function MarkdownBubble({ content, streaming = false, onTick }: { content: strin
 function StatusIndicator() {
   const [stage, setStage] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setStage((s) => Math.min(s + 1, STATUS_STAGES.length - 1)), 500);
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, STATUS_STAGES.length - 1)), 600);
     return () => clearInterval(id);
   }, []);
   return (
     <div className="flex justify-start animate-fade-up">
-      <div className="glass rounded-2xl px-4 py-3 max-w-[85%] space-y-2">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+      <div className="shrink-0 mr-2 h-7 w-7 rounded-lg flex items-center justify-center text-primary-foreground text-xs font-bold relative" style={{ background: "var(--gradient-primary)" }}>
+        <span className="absolute inset-0 rounded-lg bg-primary/40 animate-ping" />
+        <span className="relative">R</span>
+      </div>
+      <div className="glass rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%] space-y-2">
+        <div key={stage} className="flex items-center gap-2 text-[11px] font-mono text-primary/90 uppercase tracking-wider animate-fade-up">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          {STATUS_STAGES[stage]}
+          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
+            {STATUS_STAGES[stage]}
+          </span>
         </div>
         <div className="flex gap-1.5 items-center">
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "120ms" }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "240ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "0ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "160ms" }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-thinking-dot" style={{ animationDelay: "320ms" }} />
         </div>
       </div>
     </div>
