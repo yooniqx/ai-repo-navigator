@@ -279,50 +279,50 @@ function buildArchitecture(files: GhTreeEntry[], stack: TechStack): { title: str
   if (hasFrontend && hasBackend) {
     arch.push({
       title: "Full-Stack Architecture",
-      description: `Frontend (${stack.frontend[0] ?? "client UI"}) and backend (${stack.backend[0] ?? "server logic"}) live side-by-side. Requests flow from the UI to API routes/services, which return JSON consumed by the client.`,
+      description: `**Frontend:** ${stack.frontend[0] ?? "Client UI"}\n**Backend:** ${stack.backend[0] ?? "Server logic"}\n\n• Requests flow from UI to API routes/services\n• Backend returns JSON consumed by client\n• Shared codebase enables type safety across layers`,
     });
   } else if (hasFrontend) {
     arch.push({
       title: "Client-Side Application",
-      description: `A frontend-only project organized around UI components and pages${stack.frontend.length ? `, built with ${stack.frontend.join(", ")}` : ""}. State and routing are handled in the browser.`,
+      description: `**Framework:** ${stack.frontend.length ? stack.frontend.join(", ") : "Browser-based UI"}\n\n• Organized around UI components and pages\n• State and routing handled in the browser\n• Typically consumes external APIs or static data`,
     });
   } else if (hasBackend) {
     arch.push({
       title: "Backend Service",
-      description: `Service-oriented layout focused on routes, controllers, or commands${stack.backend.length ? ` (${stack.backend.join(", ")})` : ""}. The entry point boots an HTTP server or CLI.`,
+      description: `**Technology:** ${stack.backend.length ? stack.backend.join(", ") : "Server-side logic"}\n\n• Service-oriented layout with routes/controllers\n• Entry point boots HTTP server or CLI\n• Handles business logic and data persistence`,
     });
   } else {
     arch.push({
       title: "Library / Utility",
-      description: "No clear client/server split — likely a reusable library, CLI, or single-purpose module.",
+      description: `**Type:** Reusable module or tool\n\n• No client/server split detected\n• Likely a library, CLI, or single-purpose utility\n• Consumed by other projects as a dependency`,
     });
   }
 
   if (folders.some((f) => ["packages", "apps"].includes(f))) {
     arch.push({
       title: "Monorepo Layout",
-      description: "Multiple packages or apps share tooling under one repo. Each workspace is a self-contained unit; root configs propagate down.",
+      description: `**Structure:** Multiple packages under one repository\n\n• Each workspace is self-contained and independently deployable\n• Shared tooling and dependencies across packages\n• Root configs propagate to all workspaces`,
     });
   }
 
   if (has("package.json")) {
     arch.push({
       title: "Node.js Configuration",
-      description: "package.json defines dependencies and scripts. tsconfig.json (if present) configures TypeScript paths and strictness. Lockfiles pin exact versions.",
+      description: `**Package Management:** npm/yarn/pnpm/bun\n\n• package.json defines dependencies and scripts\n• tsconfig.json configures TypeScript (if present)\n• Lock files ensure reproducible builds`,
     });
   }
 
   if (folders.includes("api") || folders.includes("routes") || folders.includes("server")) {
     arch.push({
       title: "API / Server Layer",
-      description: "HTTP endpoints live in api/, routes/, or server/. Each file typically maps to a URL and handles its own request/response cycle.",
+      description: `**Location:** api/, routes/, or server/ folder\n\n• HTTP endpoints mapped to URL patterns\n• Each file handles its own request/response cycle\n• Middleware processes requests before handlers`,
     });
   }
 
   if (folders.some((f) => ["tests", "__tests__", "test"].includes(f)) || fileNames.some((f) => f.includes(".test.") || f.includes(".spec."))) {
     arch.push({
       title: "Automated Testing",
-      description: `Test suite present${stack.testing.length ? ` (${stack.testing.join(", ")})` : ""}. CI likely runs these on every PR to guard against regressions.`,
+      description: `**Framework:** ${stack.testing.length ? stack.testing.join(", ") : "Test suite present"}\n\n• Tests guard against regressions\n• CI likely runs tests on every PR\n• Ensures code quality and reliability`,
     });
   }
 
@@ -395,76 +395,152 @@ function buildBeginnerGuide(repo: GhRepo, files: GhTreeEntry[], stack: TechStack
   const folders = files.filter((f) => f.type === "tree").map((f) => lc(f.path));
   const steps: string[] = [];
 
-  steps.push(`Read README.md in ${repo.full_name} — it usually explains what the project does, who it's for, and how to run it locally.`);
+  // Step 1: Read documentation
+  steps.push(`**Read the README** — Start with README.md to understand:\n   • What the project does\n   • Who it's for\n   • How to run it locally`);
 
+  // Step 2: Install dependencies
   if (names.has("package.json")) {
     const pm = stack.packageManagers.find((p) => p !== "npm") ?? "npm";
-    steps.push(`Open package.json to inspect dependencies and scripts. Install with \`${pm.toLowerCase()} install\` and start with the dev script (typically \`${pm.toLowerCase()} run dev\`).`);
+    steps.push(`**Install dependencies** — Run these commands:\n   • \`${pm.toLowerCase()} install\` to install packages\n   • \`${pm.toLowerCase()} run dev\` to start development server\n   • Check package.json scripts for other commands`);
   } else if (names.has("requirements.txt") || names.has("pyproject.toml")) {
-    steps.push("Create a virtual environment, install dependencies (pip install -r requirements.txt or poetry install), then run the main entry script.");
+    steps.push(`**Set up Python environment** — Follow these steps:\n   • Create virtual environment: \`python -m venv venv\`\n   • Activate it: \`source venv/bin/activate\` (Unix) or \`venv\\Scripts\\activate\` (Windows)\n   • Install: \`pip install -r requirements.txt\``);
   } else if (names.has("go.mod")) {
-    steps.push("Run `go mod download`, then explore cmd/ or main.go for the entry point. `go run .` boots the program.");
+    steps.push(`**Set up Go project** — Run these commands:\n   • \`go mod download\` to fetch dependencies\n   • \`go run .\` to start the application\n   • Check cmd/ or main.go for entry points`);
   } else if (names.has("cargo.toml")) {
-    steps.push("Use `cargo run` to build and execute. src/main.rs (binary) or src/lib.rs (library) is the entry.");
+    steps.push(`**Set up Rust project** — Run these commands:\n   • \`cargo build\` to compile\n   • \`cargo run\` to execute\n   • Entry: src/main.rs (binary) or src/lib.rs (library)`);
   }
 
+  // Step 3: Find entry point
   const entryFile = ["src/index.ts", "src/index.tsx", "src/main.ts", "src/main.tsx", "src/app.tsx", "index.js", "main.py"].find((f) => names.has(lc(f)));
   if (entryFile) {
-    steps.push(`Open the entry file (\`${entryFile}\`) and follow its imports outward — this is the fastest way to map the code.`);
+    steps.push(`**Trace the entry point** — Open \`${entryFile}\` and:\n   • Follow imports to understand dependencies\n   • Identify initialization logic\n   • Map out the application structure`);
   }
 
+  // Step 4: Explore codebase structure
   const front = folders.find((f) => FRONTEND_HINTS.includes(f));
   const back = folders.find((f) => BACKEND_HINTS.includes(f));
   if (front && back) {
-    steps.push(`Explore ${front}/ for UI code and ${back}/ for server logic. Trace one feature end-to-end to understand how they connect.`);
+    steps.push(`**Explore the codebase** — Navigate key folders:\n   • ${front}/ contains UI components and pages\n   • ${back}/ contains server logic and APIs\n   • Trace one feature end-to-end to see how they connect`);
   } else if (front) {
-    steps.push(`The ${front}/ folder holds the application — look for components/, pages/, or routes/ subfolders to understand the UI structure.`);
+    steps.push(`**Explore the frontend** — Navigate ${front}/ folder:\n   • Look for components/, pages/, or routes/\n   • Understand the UI component hierarchy\n   • Check routing configuration`);
   } else if (back) {
-    steps.push(`The ${back}/ folder holds the service — find the route registrations and follow handlers to controllers/services.`);
+    steps.push(`**Explore the backend** — Navigate ${back}/ folder:\n   • Find route registrations\n   • Follow handlers to controllers/services\n   • Understand the API structure`);
   }
 
-  if (folders.includes("docs")) steps.push("Browse docs/ for deeper explanations of internals and design decisions.");
-  if (names.has(".env.example")) steps.push("Copy .env.example to .env and fill in any required secrets before running.");
+  // Step 5: Environment setup
+  if (names.has(".env.example")) {
+    steps.push(`**Configure environment** — Set up required variables:\n   • Copy \`.env.example\` to \`.env\`\n   • Fill in required secrets and API keys\n   • Never commit .env to version control`);
+  }
 
-  steps.push("Make a tiny change (a string, console log, or comment) and confirm hot-reload works — this validates your dev setup.");
-  steps.push("Read the most recently modified files for clues about active areas of development.");
+  // Step 6: Additional resources
+  if (folders.includes("docs")) {
+    steps.push(`**Read documentation** — Browse docs/ folder for:\n   • Architecture decisions\n   • API documentation\n   • Development guidelines`);
+  }
+
+  // Step 7: Validate setup
+  steps.push(`**Validate your setup** — Confirm everything works:\n   • Make a small change (add a console.log)\n   • Verify hot-reload updates automatically\n   • Run tests if available`);
+
+  // Step 8: Explore recent changes
+  steps.push(`**Understand recent work** — Check Git history:\n   • Review recently modified files\n   • Read recent commit messages\n   • Identify active development areas`);
 
   return steps.slice(0, 8);
 }
 
 function buildSummary(repo: GhRepo, readme: string, stack: TechStack, files: GhTreeEntry[]): string {
   const desc = repo.description?.trim();
-  const firstPara = readme
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .split("\n")
-    .map((l) => l.trim())
-    .find((l) => l && !l.startsWith("#") && !l.startsWith("![") && !l.startsWith("<") && !l.startsWith("[!") && l.length > 60);
-
   const folders = files.filter((f) => f.type === "tree").map((f) => lc(f.path));
   const hasFrontend = folders.some((f) => FRONTEND_HINTS.includes(f)) || stack.frontend.length > 0;
   const hasBackend = folders.some((f) => BACKEND_HINTS.includes(f)) || stack.backend.length > 0;
-  const archStyle = hasFrontend && hasBackend ? "full-stack" : hasFrontend ? "client-side" : hasBackend ? "backend service" : "library/utility";
+  const stars = repo.stargazers_count;
 
-  const techParts: string[] = [];
-  if (stack.frontend.length) techParts.push(`frontend with ${stack.frontend.slice(0, 2).join(", ")}`);
-  if (stack.backend.length) techParts.push(`backend on ${stack.backend.slice(0, 2).join(", ")}`);
-  if (!techParts.length && stack.languages.length) techParts.push(`written in ${stack.languages.slice(0, 2).join(", ")}`);
+  // Infer project purpose and type
+  const hasAPI = folders.some((f) => ["api", "routes", "endpoints"].includes(f));
+  const hasUI = folders.some((f) => ["components", "pages", "views", "ui"].includes(f));
+  const hasLib = folders.some((f) => ["lib", "packages", "src"].includes(f)) && !hasFrontend && !hasBackend;
+  const hasCLI = folders.some((f) => ["cli", "cmd", "bin"].includes(f));
+  const hasDocs = folders.some((f) => ["docs", "documentation"].includes(f));
+  const hasExamples = folders.some((f) => ["examples", "demo", "samples"].includes(f));
+  
+  // Infer application type
+  let appType = "";
+  if (hasFrontend && hasBackend) {
+    appType = hasAPI ? "full-stack web application with REST API" : "full-stack web application";
+  } else if (hasFrontend) {
+    appType = stack.frontend.some((f) => f.includes("Next.js")) ? "server-rendered web application" : "single-page application (SPA)";
+  } else if (hasBackend) {
+    appType = hasAPI ? "backend API service" : "server-side application";
+  } else if (hasCLI) {
+    appType = "command-line tool";
+  } else if (hasLib) {
+    appType = stack.languages.includes("TypeScript") || stack.languages.includes("JavaScript") ? "JavaScript/TypeScript library" : "software library";
+  } else {
+    appType = "software project";
+  }
 
-  const intro = desc
-    ? `${repo.full_name} — ${desc}`
-    : `${repo.full_name} is a ${stack.languages[0] ?? "software"} project hosted on GitHub.`;
+  // Infer target users
+  let targetUsers = "";
+  if (hasDocs && hasExamples && stars > 500) {
+    targetUsers = "developers building production applications";
+  } else if (hasExamples || hasDocs) {
+    targetUsers = "developers looking for a ready-to-use solution";
+  } else if (stars > 1000) {
+    targetUsers = "developers and teams in production environments";
+  } else if (stack.testing.length > 0) {
+    targetUsers = "developers who value code quality";
+  } else {
+    targetUsers = "developers and early adopters";
+  }
 
-  const styleSentence = `It follows a ${archStyle} architecture${techParts.length ? `, ${techParts.join(" and ")}` : ""}.`;
+  // Infer developer experience level
+  let devLevel = "";
+  const hasTypes = stack.buildTools.includes("TypeScript") || stack.languages.includes("TypeScript");
+  const hasTests = stack.testing.length > 0;
+  const complexStack = stack.languages.length > 2 || (hasFrontend && hasBackend);
+  
+  if (complexStack && hasTypes && hasTests) {
+    devLevel = "intermediate to advanced developers";
+  } else if (complexStack) {
+    devLevel = "developers with full-stack experience";
+  } else if (hasTypes || hasTests) {
+    devLevel = "developers comfortable with modern tooling";
+  } else if (hasFrontend || hasBackend) {
+    devLevel = "beginner to intermediate developers";
+  } else {
+    devLevel = "developers of all levels";
+  }
 
-  const workflow = stack.deployment.length
-    ? `Deployment is wired through ${stack.deployment.slice(0, 2).join(" / ")}${stack.testing.length ? `, with ${stack.testing[0]} for testing` : ""}.`
-    : stack.testing.length
-      ? `Testing uses ${stack.testing[0]}.`
-      : "";
+  // Build architecture description
+  const archParts: string[] = [];
+  if (stack.frontend.length) archParts.push(stack.frontend[0]);
+  if (stack.backend.length) archParts.push(stack.backend[0]);
+  if (!archParts.length && stack.languages.length) archParts.push(stack.languages[0]);
+  
+  const archDesc = archParts.length ? ` built with ${archParts.slice(0, 2).join(" and ")}` : "";
 
-  const popularity = `${repo.stargazers_count.toLocaleString()} stars · ${repo.forks_count.toLocaleString()} forks · ${repo.open_issues_count.toLocaleString()} open issues.`;
+  // Compose intelligent summary
+  const parts: string[] = [];
+  
+  // Opening: What it is
+  if (desc) {
+    parts.push(`**${repo.full_name}** — ${desc}`);
+  } else {
+    parts.push(`**${repo.full_name}** is a ${appType}${archDesc}.`);
+  }
 
-  return [intro, styleSentence, firstPara ? firstPara.slice(0, 280) : null, workflow, popularity].filter(Boolean).join(" ");
+  // Purpose and users
+  parts.push(`\n\n**Purpose:** ${appType.charAt(0).toUpperCase() + appType.slice(1)} designed for ${targetUsers}.`);
+
+  // Architecture style
+  const archStyle = hasFrontend && hasBackend ? "full-stack architecture" : hasFrontend ? "client-side architecture" : hasBackend ? "server-side architecture" : "modular library structure";
+  parts.push(`\n\n**Architecture:** ${archStyle.charAt(0).toUpperCase() + archStyle.slice(1)}${archDesc ? ` using ${archParts.join(" + ")}` : ""}.`);
+
+  // Developer experience
+  parts.push(`\n\n**Best suited for:** ${devLevel.charAt(0).toUpperCase() + devLevel.slice(1)}.`);
+
+  // Popularity metrics
+  parts.push(`\n\n**Community:** ${stars.toLocaleString()} stars · ${repo.forks_count.toLocaleString()} forks · ${repo.open_issues_count.toLocaleString()} open issues`);
+
+  return parts.join("");
 }
 
 function buildDeveloperInsights(repo: GhRepo, files: GhTreeEntry[], stack: TechStack): DeveloperInsights {
