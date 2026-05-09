@@ -6,6 +6,19 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
 [![TanStack Start](https://img.shields.io/badge/TanStack-Start-orange)](https://tanstack.com/start)
 
+## 🎥 Demo Video
+
+Watch RepoMind in action! This comprehensive demo showcases the platform's key features, including repository analysis, health assessment, and interactive chat capabilities.
+
+**[📺 View Demo Video](https://drive.google.com/file/d/1cOMnS1_cuPwR2t0Y-8cdMBIpyb4O1xog/view?usp=sharing)**
+
+The demo covers:
+- 🔍 Real-time repository analysis workflow
+- 📊 Health assessment and insights generation
+- 💬 Interactive chat system demonstration
+- 🎯 Key features and use cases
+- 🚀 Developer onboarding experience
+
 ## 🎯 Problem Statement
 
 Developers waste hours trying to understand unfamiliar codebases:
