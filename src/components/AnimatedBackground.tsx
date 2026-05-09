@@ -88,10 +88,10 @@ export function AnimatedBackground() {
       <NodeDot x="10%" y="86%" size={6} delay={4} />
 
       {/* Folder & file icons */}
-      <FolderIcon className="absolute text-primary/25 h-12 w-12 animate-drift-a" style={{ left: "8%", top: "32%", animationDelay: "1s" } as React.CSSProperties} />
-      <FileIcon   className="absolute text-primary/20 h-10 w-10 animate-drift-b" style={{ left: "82%", top: "60%", animationDelay: "3s" } as React.CSSProperties} />
-      <FolderIcon className="absolute text-primary/15 h-9 w-9  animate-drift-c" style={{ left: "60%", top: "20%", animationDelay: "5s" } as React.CSSProperties} />
-      <FileIcon   className="absolute text-primary/20 h-8 w-8  animate-drift-a" style={{ left: "36%", top: "76%", animationDelay: "2s" } as React.CSSProperties} />
+      <FolderIcon className="absolute text-primary/25 h-12 w-12 animate-drift-a" style={{ left: "8%", top: "32%", animationDelay: "1s" }} />
+      <FileIcon   className="absolute text-primary/20 h-10 w-10 animate-drift-b" style={{ left: "82%", top: "60%", animationDelay: "3s" }} />
+      <FolderIcon className="absolute text-primary/15 h-9 w-9  animate-drift-c" style={{ left: "60%", top: "20%", animationDelay: "5s" }} />
+      <FileIcon   className="absolute text-primary/20 h-8 w-8  animate-drift-a" style={{ left: "36%", top: "76%", animationDelay: "2s" }} />
 
       {/* Floating dev symbols */}
       {SYMBOLS.map((s, i) => (
