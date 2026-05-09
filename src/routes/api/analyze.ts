@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/analyze")({
         try {
           // Set GitHub environment context for authenticated requests
           // Access Cloudflare env variables through context
-          const env = (context as { cloudflare?: { env?: { GITHUB_TOKEN?: string } } })?.cloudflare?.env;
+          const env = (context as unknown as { cloudflare?: { env?: { GITHUB_TOKEN?: string } } })?.cloudflare?.env;
           if (env) {
             setGitHubEnv(env);
           }
