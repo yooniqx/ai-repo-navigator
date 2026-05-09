@@ -7,7 +7,7 @@ export function Footer() {
           <a href="/#how-it-works" className="hover:text-foreground transition-colors">Docs</a>
           <a href="/#developer-features" className="hover:text-foreground transition-colors">API</a>
           <a
-            href="https://github.com/yooniqx/ai-repo-navigator"
+            href="https://github.com/yooniqx/ai-repo-navigator.git"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-foreground transition-colors"
