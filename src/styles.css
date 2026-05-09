@@ -262,6 +262,51 @@
     animation: skeleton-shimmer 1.8s ease-in-out infinite;
   }
 
+  /* Animated developer-themed background */
+  @keyframes drift-a {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(18px, -22px) rotate(2deg); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(-22px, 16px) rotate(-3deg); }
+  }
+  @keyframes drift-c {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(14px, 24px) rotate(4deg); }
+  }
+  .animate-drift-a { animation: drift-a 26s ease-in-out infinite; will-change: transform; }
+  .animate-drift-b { animation: drift-b 32s ease-in-out infinite; will-change: transform; }
+  .animate-drift-c { animation: drift-c 28s ease-in-out infinite; will-change: transform; }
+
+  @keyframes orb-a {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(40px, 30px) scale(1.08); }
+  }
+  @keyframes orb-b {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-32px, -28px) scale(1.05); }
+  }
+  @keyframes orb-c {
+    0%, 100% { transform: translate(-50%, 0) scale(1); }
+    50%      { transform: translate(-50%, 24px) scale(1.06); }
+  }
+  .animate-orb-a { animation: orb-a 22s ease-in-out infinite; }
+  .animate-orb-b { animation: orb-b 28s ease-in-out infinite; }
+  .animate-orb-c { animation: orb-c 24s ease-in-out infinite; }
+
+  @keyframes node-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.4); }
+  }
+  .animate-node-pulse { animation: node-pulse 3.5s ease-in-out infinite; }
+
+  @keyframes parallax-slow {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(-12px, 8px, 0); }
+  }
+  .animate-parallax-slow { animation: parallax-slow 40s ease-in-out infinite; }
+
   /* Chat thinking + streaming caret */
   .animate-shimmer {
     animation: shimmer 2.4s linear infinite;
