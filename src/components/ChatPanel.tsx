@@ -56,7 +56,10 @@ function useStreamedContent(full: string, enabled: boolean) {
   return shown;
 }
 
-function MarkdownBubble({ content }: { content: string }) {
+function MarkdownBubble({ content, streaming = false, onTick }: { content: string; streaming?: boolean; onTick?: () => void }) {
+  const shown = useStreamedContent(content, streaming);
+  useEffect(() => { onTick?.(); }, [shown, onTick]);
+  const isStreaming = streaming && shown.length < content.length;
   return (
     <div className="prose prose-invert prose-sm max-w-none
       prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-foreground
@@ -69,7 +72,13 @@ function MarkdownBubble({ content }: { content: string }) {
       prose-pre:bg-background/70 prose-pre:border prose-pre:border-border/60 prose-pre:rounded-lg prose-pre:text-xs prose-pre:my-2
       prose-blockquote:border-l-primary/50 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-xs prose-blockquote:font-mono
       prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown>
+      {isStreaming && (
+        <span
+          aria-hidden
+          className="inline-block align-[-2px] ml-0.5 h-3.5 w-[2px] bg-primary animate-caret-blink rounded-sm"
+        />
+      )}
     </div>
   );
 }
