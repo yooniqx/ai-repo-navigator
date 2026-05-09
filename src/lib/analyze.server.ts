@@ -6,6 +6,7 @@ import {
   type GhTreeEntry,
   type GhRepo,
 } from "./github.server";
+import { extractReadmePreview } from "./markdown-utils";
 
 export interface TechStack {
   languages: string[];
@@ -723,7 +724,8 @@ function buildDeveloperInsights(
 
 function readmeExcerpt(readme: string): string {
   if (!readme) return "";
-  return readme.split("\n").slice(0, 30).join("\n").slice(0, 1200);
+  // Use intelligent markdown truncation that preserves structure
+  return extractReadmePreview(readme);
 }
 
 function buildRepositoryHealth(

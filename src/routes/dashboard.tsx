@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AnalysisCard } from "@/components/AnalysisCard";
 import { ChatPanel } from "@/components/ChatPanel";
+import { ReadmePreview } from "@/components/ReadmePreview";
 import type { AnalyzeResult } from "@/lib/repo";
 
 export const Route = createFileRoute("/dashboard")({
@@ -208,16 +209,7 @@ function Dashboard() {
                 }
               >
                 <p className="text-foreground/90 leading-7">{data.summary}</p>
-                {data.readmeExcerpt && (
-                  <details className="mt-4 group">
-                    <summary className="cursor-pointer text-xs font-mono text-primary hover:text-primary/80 transition-colors">
-                      README excerpt ▾
-                    </summary>
-                    <pre className="mt-3 p-3 rounded-lg bg-background/60 border border-border/50 text-xs whitespace-pre-wrap font-mono overflow-x-auto">
-                      {data.readmeExcerpt}
-                    </pre>
-                  </details>
-                )}
+                {data.readmeExcerpt && <ReadmePreview content={data.readmeExcerpt} />}
               </AnalysisCard>
 
               <AnalysisCard
